@@ -1,11 +1,17 @@
-package hexlet.code;
+package hexlet.code.controller;
 
+import hexlet.code.dto.UserDTO;
+import hexlet.code.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -109,7 +115,7 @@ public class UsersControllerTest {
 
     @Test
     public void testCreateWithNotValidEmail() throws Exception {
-        var dto = mapper.map(testUser);
+        UserDTO dto = mapper.map(testUser);
         dto.setEmail("notvalidemail.");
 
         MockHttpServletRequestBuilder request = post("/users")
@@ -137,6 +143,7 @@ public class UsersControllerTest {
 
         User user = userRepository.findById(testUser.getId()).get();
 
+        assertThat(user).isNotNull();
         assertThat(user.getFirstName()).isEqualTo(dto.getFirstName());
         assertThat(user.getLastName()).isEqualTo(dto.getLastName());
     }
@@ -157,6 +164,7 @@ public class UsersControllerTest {
 
         User user = userRepository.findById(testUser.getId()).get();
 
+        assertThat(user).isNotNull();
         assertThat(user.getFirstName()).isEqualTo(dto.get("firstName"));
         assertThat(user.getLastName()).isEqualTo(testUser.getLastName());
     }
