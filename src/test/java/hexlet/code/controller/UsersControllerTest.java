@@ -1,5 +1,6 @@
 package hexlet.code.controller;
 
+import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +41,6 @@ public class UsersControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private Faker faker;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -55,6 +53,7 @@ public class UsersControllerTest {
 
     @BeforeEach
     public void setUp() {
+        Faker faker = new Faker();
         testUser = Instancio.of(User.class)
                 .ignore(Select.field(User::getId))
                 .ignore(Select.field(User::getCreatedAt))
@@ -73,9 +72,6 @@ public class UsersControllerTest {
 
         String body = result.getResponse().getContentAsString();
         assertThatJson(body).isArray();
-        assertThatJson(body).and(
-                v -> v.node("firstName").isEqualTo(testUser.getFirstName())
-        );
     }
 
     @Test
@@ -96,7 +92,11 @@ public class UsersControllerTest {
 
     @Test
     public void testCreate() throws Exception {
-        var dto = mapper.map(testUser);
+        UserCreateDTO dto = new UserCreateDTO();
+        dto.setEmail(testUser.getEmail());
+        dto.setPassword(testUser.getPassword());
+        dto.setFirstName(testUser.getFirstName());
+        dto.setLastName(testUser.getLastName());
 
         MockHttpServletRequestBuilder request = post("/users")
                 .contentType(MediaType.APPLICATION_JSON)

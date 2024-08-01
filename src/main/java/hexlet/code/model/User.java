@@ -39,19 +39,11 @@ public class User {
     private String email;
 
     @NotNull
-    private String passwordDigest;
+    private String password;
 
     @CreatedDate
     private LocalDate createdAt;
 
     @LastModifiedDate
     private LocalDate updatedAt;
-
-    public String getPassword() {
-        return passwordDigest;
-    }
-
-    public String getUsername() {
-        return email;
-    }
 }
