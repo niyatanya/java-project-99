@@ -10,4 +10,5 @@ import hexlet.code.model.User;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByFirstNameAndLastName(String firstName, String lastName);
 
+    Optional<User> findByEmail(String email);
 }

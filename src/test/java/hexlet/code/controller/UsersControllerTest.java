@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -66,7 +67,7 @@ public class UsersControllerTest {
     public void testIndex() throws Exception {
         userRepository.save(testUser);
 
-        MvcResult result = mockMvc.perform(get("/users"))
+        MvcResult result = mockMvc.perform(get("/api/users").with(jwt()))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -78,7 +79,7 @@ public class UsersControllerTest {
     public void testShow() throws Exception {
         userRepository.save(testUser);
 
-        var request = get("/users/{id}", testUser.getId());
+        var request = get("/api/users/{id}", testUser.getId()).with(jwt());
 
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isOk())
@@ -98,7 +99,8 @@ public class UsersControllerTest {
         dto.setFirstName(testUser.getFirstName());
         dto.setLastName(testUser.getLastName());
 
-        MockHttpServletRequestBuilder request = post("/users")
+        MockHttpServletRequestBuilder request = post("/api/users")
+                .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
 
@@ -118,7 +120,8 @@ public class UsersControllerTest {
         UserDTO dto = mapper.map(testUser);
         dto.setEmail("notvalidemail.");
 
-        MockHttpServletRequestBuilder request = post("/users")
+        MockHttpServletRequestBuilder request = post("/api/users")
+                .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
 
@@ -134,7 +137,8 @@ public class UsersControllerTest {
         dto.setFirstName("New name");
         dto.setLastName("New last name");
 
-        MockHttpServletRequestBuilder request = put("/users/{id}", testUser.getId())
+        MockHttpServletRequestBuilder request = put("/api/users/{id}", testUser.getId())
+                .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
 
@@ -155,7 +159,8 @@ public class UsersControllerTest {
         Map<String, String> dto = new HashMap<>();
         dto.put("firstName", "Another name");
 
-        MockHttpServletRequestBuilder request = put("/users/{id}", testUser.getId())
+        MockHttpServletRequestBuilder request = put("/api/users/{id}", testUser.getId())
+                .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
 
@@ -173,11 +178,27 @@ public class UsersControllerTest {
     public void testDelete() throws Exception {
         userRepository.save(testUser);
 
-        MockHttpServletRequestBuilder request = delete("/users/{id}", testUser.getId());
+        MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser.getId()).with(jwt());
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());
 
         assertThat(userRepository.existsById(testUser.getId())).isEqualTo(false);
+    }
+
+    @Test
+    public void testIndexWithoutAuth() throws Exception {
+        userRepository.save(testUser);
+        mockMvc.perform(get("/api/users"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testShowWithoutAuth() throws Exception {
+        userRepository.save(testUser);
+
+        MockHttpServletRequestBuilder request = get("/api/users/{id}", testUser.getId());
+        mockMvc.perform(request)
+                .andExpect(status().isUnauthorized());
     }
 }
