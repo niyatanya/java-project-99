@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,11 +40,14 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    private List<UserDTO> index() {
+    private ResponseEntity<List<UserDTO>> index() {
         List<User> users = userRepository.findAll();
-        return users.stream()
+        List<UserDTO> result = users.stream()
                 .map(mapper::map)
                 .toList();
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(users.size()))
+                .body(result);
     }
 
     @GetMapping(path = "/{id}")

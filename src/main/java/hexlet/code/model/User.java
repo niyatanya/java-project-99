@@ -15,7 +15,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -49,10 +49,10 @@ public class User implements UserDetails {
     private String passwordDigest;
 
     @CreatedDate
-    private LocalDate createdAt;
+    private Timestamp createdAt;
 
     @LastModifiedDate
-    private LocalDate updatedAt;
+    private Timestamp updatedAt;
 
     @Override
     public String getPassword() {
