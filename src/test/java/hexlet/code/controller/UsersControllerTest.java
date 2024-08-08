@@ -3,6 +3,7 @@ package hexlet.code.controller;
 import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.mapper.UserMapper;
+import hexlet.code.util.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,6 +44,9 @@ public class UsersControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserUtils userUtils;
 
     @Autowired
     private UserMapper mapper;
