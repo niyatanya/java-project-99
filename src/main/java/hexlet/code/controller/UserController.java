@@ -3,8 +3,10 @@ package hexlet.code.controller;
 import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.dto.UserUpdateDTO;
+import hexlet.code.exception.NoPermissionToAccessException;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.UserMapper;
+import hexlet.code.util.UserUtils;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.service.UserService;
@@ -68,11 +70,28 @@ public class UserController {
     @PutMapping(path = "/{id}")
     private UserDTO update(@Valid @RequestBody UserUpdateDTO dto,
                            @PathVariable long id) {
-        return userService.updateUser(dto, id);
+
+        UserUtils utils = new UserUtils();
+        User currentUser = utils.getCurrentUser();
+        User userToDelete = userRepository.findById(id).get();
+
+        if (currentUser.getId() == userToDelete.getId()) {
+            return userService.updateUser(dto, id);
+        } else {
+            throw new NoPermissionToAccessException("No permission to change other users details");
+        }
     }
 
     @DeleteMapping(path = "/{id}")
     private void delete(@PathVariable long id) {
-        userRepository.deleteById(id);
+        UserUtils utils = new UserUtils();
+        User currentUser = utils.getCurrentUser();
+        User userToDelete = userRepository.findById(id).get();
+
+        if (currentUser.getId() == userToDelete.getId()) {
+            userRepository.deleteById(id);
+        } else {
+            throw new NoPermissionToAccessException("No permission to delete other users");
+        }
     }
 }
