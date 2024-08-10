@@ -19,7 +19,17 @@ public class UserUtils {
             return null;
         }
         var email = authentication.getName();
+        System.out.println("PRINT AUTHENTICATED EMAIL: " + email);
+        System.out.println("PRINT AUTHENTICATION OBJECT: " + authentication);
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    public boolean isAuthenticated() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
+        return true;
     }
 }
