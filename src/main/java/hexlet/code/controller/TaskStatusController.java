@@ -5,7 +5,9 @@ import hexlet.code.dto.TaskStatusUpdateDTO;
 import hexlet.code.exception.EntityCanNotBeDeletedException;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskStatusMapper;
+import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
+import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 
 import jakarta.validation.Valid;
@@ -30,6 +32,9 @@ public class TaskStatusController {
 
     @Autowired
     private TaskStatusRepository statusRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Autowired
     private TaskStatusMapper mapper;
@@ -72,7 +77,9 @@ public class TaskStatusController {
         TaskStatus status = statusRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task status with " + id + " not found."));
 
-        if (status.getTasks().isEmpty()) {
+        List<Task> tasks = taskRepository.findAllByTaskStatus(status);
+
+        if (tasks.isEmpty()) {
             statusRepository.deleteById(id);
         } else {
             throw new EntityCanNotBeDeletedException("Task status can not be deleted while at least one task has it.");
