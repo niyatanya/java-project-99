@@ -3,10 +3,9 @@ package hexlet.code.controller;
 import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.dto.UserUpdateDTO;
-import hexlet.code.exception.NoPermissionToAccessException;
 import hexlet.code.exception.ResourceNotFoundException;
+import hexlet.code.exception.EntityCanNotBeDeletedException;
 import hexlet.code.mapper.UserMapper;
-import hexlet.code.util.UserUtils;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.service.UserService;
@@ -15,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,9 +40,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private UserUtils userUtils;
 
     @GetMapping
     private ResponseEntity<List<UserDTO>> index() {
@@ -72,42 +68,25 @@ public class UserController {
     }
 
     @PutMapping(path = "/{id}")
+    //value = "@userService.findById(#id).getEmail() == authentication.name"
+    //"@userRepository.findById(#id).getEmail() == authentication.principal.username"
+    @PreAuthorize(value = "@userRepository.findById(#id).getEmail() == authentication.name")
     private UserDTO update(@Valid @RequestBody UserUpdateDTO dto,
                            @PathVariable long id) {
-
-        User currentUser = userUtils.getCurrentUser();
-
-        if (currentUser.getId() == id) {
-            return userService.updateUser(dto, id);
-        } else {
-            throw new NoPermissionToAccessException("No permission to change other users details");
-        }
+        return userService.updateUser(dto, id);
     }
 
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(value = "@userRepository.findById(#id).getEmail() == authentication.principal.username")
     private void delete(@PathVariable long id) {
-        User currentUser = userUtils.getCurrentUser();
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found."));
 
-        if (currentUser.getId() == id) {
+        if (user.getTasks().isEmpty()) {
             userRepository.deleteById(id);
         } else {
-            throw new NoPermissionToAccessException("No permission to delete other users");
+            throw new EntityCanNotBeDeletedException("User can not be deleted while he is assigned at least for one task.");
         }
     }
-
-
-//    @PutMapping(path = "/{id}")
-//    @PreAuthorize("@userRepository.findById(#id).getEmail() == authentication.name")
-//    private UserDTO update(@Valid @RequestBody UserUpdateDTO dto,
-//                           @PathVariable long id) {
-//        return userService.updateUser(dto, id);
-//    }
-//
-//    @DeleteMapping(path = "/{id}")
-//    @PreAuthorize("@userRepository.findById(#id).getEmail() == authentication.name")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    private void delete(@PathVariable long id) {
-//            userRepository.deleteById(id);
-//    }
 }

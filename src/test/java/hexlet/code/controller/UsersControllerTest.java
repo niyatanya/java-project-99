@@ -3,6 +3,11 @@ package hexlet.code.controller;
 import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.mapper.UserMapper;
+import hexlet.code.model.Task;
+import hexlet.code.model.TaskStatus;
+import hexlet.code.repository.TaskRepository;
+import hexlet.code.repository.TaskStatusRepository;
+import hexlet.code.service.UserService;
 import hexlet.code.util.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -22,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.instancio.Instancio;
@@ -46,7 +52,18 @@ public class UsersControllerTest {
     private UserRepository userRepository;
 
     @Autowired
+    private TaskStatusRepository statusRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
+
+    private JwtRequestPostProcessor token;
+
+    @Autowired
     private UserUtils userUtils;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private UserMapper mapper;
@@ -56,15 +73,18 @@ public class UsersControllerTest {
 
     private User testUser;
 
+    private final Faker faker = new Faker();
+
     @BeforeEach
     public void setUp() {
-        Faker faker = new Faker();
         testUser = Instancio.of(User.class)
                 .ignore(Select.field(User::getId))
                 .ignore(Select.field(User::getCreatedAt))
                 .ignore(Select.field(User::getUpdatedAt))
                 .supply(Select.field(User::getEmail), () -> faker.internet().emailAddress())
                 .create();
+
+        token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
     }
 
     @Test
@@ -142,7 +162,7 @@ public class UsersControllerTest {
         dto.setLastName("New last name");
 
         MockHttpServletRequestBuilder request = put("/api/users/{id}", testUser.getId())
-                .with(jwt())
+                .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
 
@@ -164,7 +184,7 @@ public class UsersControllerTest {
         dto.put("firstName", "Another name");
 
         MockHttpServletRequestBuilder request = put("/api/users/{id}", testUser.getId())
-                .with(jwt())
+                .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
 
@@ -182,12 +202,60 @@ public class UsersControllerTest {
     public void testDelete() throws Exception {
         userRepository.save(testUser);
 
-        MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser.getId()).with(jwt());
+        MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser.getId()).with(token);
 
         mockMvc.perform(request)
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         assertThat(userRepository.existsById(testUser.getId())).isEqualTo(false);
+    }
+
+    @Test
+    public void testDeleteWithoutAuth() throws Exception {
+        userRepository.save(testUser);
+        User testUser2 = Instancio.of(User.class)
+                .ignore(Select.field(User::getId))
+                .ignore(Select.field(User::getCreatedAt))
+                .ignore(Select.field(User::getUpdatedAt))
+                .supply(Select.field(User::getEmail), () -> faker.internet().emailAddress())
+                .create();
+        userRepository.save(testUser2);
+
+        MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser2.getId()).with(token);
+
+        mockMvc.perform(request)
+                .andExpect(status().isForbidden());
+
+        assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
+    }
+
+    @Test
+    public void testDeleteUserAssignedForTask() throws Exception {
+        userRepository.save(testUser);
+
+        TaskStatus testStatus = Instancio.of(TaskStatus.class)
+                .ignore(Select.field(TaskStatus::getId))
+                .ignore(Select.field(TaskStatus::getCreatedAt))
+                .create();
+        statusRepository.save(testStatus);
+
+        Task testTask = Instancio.of(Task.class)
+                .ignore(Select.field(Task::getId))
+                .ignore(Select.field(Task::getCreatedAt))
+                .ignore(Select.field(Task::getAssignee))
+                .ignore(Select.field(Task::getTaskStatus))
+                .create();
+        testTask.setTaskStatus(testStatus);
+        testTask.setAssignee(testUser);
+
+        taskRepository.save(testTask);
+
+        MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser.getId()).with(token);
+
+        mockMvc.perform(request)
+                .andExpect(status().isLocked());
+
+        assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
     }
 
     @Test

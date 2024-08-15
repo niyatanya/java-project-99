@@ -3,9 +3,10 @@ package hexlet.code.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hexlet.code.dto.TaskStatusCreateDTO;
-import hexlet.code.dto.TaskStatusUpdateDTO;
 import hexlet.code.mapper.TaskStatusMapper;
+import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
+import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import org.instancio.Instancio;
 import org.instancio.Select;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -46,24 +46,22 @@ public class TaskStatusesControllerTest {
     private TaskStatusRepository statusRepository;
 
     @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
     private TaskStatusMapper mapper;
 
     @Autowired
     private ObjectMapper om;
 
-    private JwtRequestPostProcessor token;
-
     private TaskStatus testStatus;
 
     @BeforeEach
     public void setUp() {
-
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
                 .defaultResponseCharacterEncoding(StandardCharsets.UTF_8)
                 .apply(springSecurity())
                 .build();
-
-        token = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
 
         testStatus = Instancio.of(TaskStatus.class)
                 .ignore(Select.field(TaskStatus::getId))
@@ -75,7 +73,7 @@ public class TaskStatusesControllerTest {
     public void testIndex() throws Exception {
         statusRepository.save(testStatus);
 
-        MvcResult result = mockMvc.perform(get("/api/task_statuses").with(token))
+        MvcResult result = mockMvc.perform(get("/api/task_statuses").with(jwt()))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -106,7 +104,7 @@ public class TaskStatusesControllerTest {
         dto.setSlug(testStatus.getSlug());
 
         MockHttpServletRequestBuilder request = post("/api/task_statuses")
-                .with(token)
+                .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
 
@@ -127,7 +125,7 @@ public class TaskStatusesControllerTest {
         dto.setSlug("");
 
         MockHttpServletRequestBuilder request = post("/api/task_statuses")
-                .with(token)
+                .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
 
@@ -144,7 +142,7 @@ public class TaskStatusesControllerTest {
         data.setSlug("New slug");
 
         MockHttpServletRequestBuilder request = put("/api/task_statuses/{id}", testStatus.getId())
-                .with(token)
+                .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(data));
 
@@ -166,7 +164,7 @@ public class TaskStatusesControllerTest {
         dto.put("name", "Another name");
 
         MockHttpServletRequestBuilder request = put("/api/task_statuses/{id}", testStatus.getId())
-                .with(token)
+                .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
 
@@ -184,7 +182,7 @@ public class TaskStatusesControllerTest {
     public void testDelete() throws Exception {
         statusRepository.save(testStatus);
 
-        MockHttpServletRequestBuilder request = delete("/api/task_statuses/{id}", testStatus.getId()).with(token);
+        MockHttpServletRequestBuilder request = delete("/api/task_statuses/{id}", testStatus.getId()).with(jwt());
 
         mockMvc.perform(request)
                 .andExpect(status().isNoContent());
@@ -200,6 +198,27 @@ public class TaskStatusesControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isUnauthorized());
+
+        assertThat(statusRepository.existsById(testStatus.getId())).isEqualTo(true);
+    }
+
+    @Test
+    public void testDeleteStatusWithTask() throws Exception {
+        statusRepository.save(testStatus);
+
+        Task testTask = Instancio.of(Task.class)
+                .ignore(Select.field(Task::getId))
+                .ignore(Select.field(Task::getCreatedAt))
+                .ignore(Select.field(Task::getAssignee))
+                .ignore(Select.field(Task::getTaskStatus))
+                .create();
+        testTask.setTaskStatus(testStatus);
+        taskRepository.save(testTask);
+
+        MockHttpServletRequestBuilder request = delete("/api/task_statuses/{id}", testStatus.getId()).with(jwt());
+
+        mockMvc.perform(request)
+                .andExpect(status().isLocked());
 
         assertThat(statusRepository.existsById(testStatus.getId())).isEqualTo(true);
     }

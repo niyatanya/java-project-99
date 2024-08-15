@@ -19,8 +19,6 @@ public class UserUtils {
             return null;
         }
         var email = authentication.getName();
-        System.out.println("PRINT AUTHENTICATED EMAIL: " + email);
-        System.out.println("PRINT AUTHENTICATION OBJECT: " + authentication);
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }

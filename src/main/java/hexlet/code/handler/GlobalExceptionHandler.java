@@ -1,7 +1,7 @@
 package hexlet.code.handler;
 
-import hexlet.code.exception.NoPermissionToAccessException;
 import hexlet.code.exception.ResourceNotFoundException;
+import hexlet.code.exception.EntityCanNotBeDeletedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,8 +16,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
-    @ExceptionHandler(NoPermissionToAccessException.class)
-    public ResponseEntity<String> handleNoPermissionToAccessException(NoPermissionToAccessException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    @ExceptionHandler(EntityCanNotBeDeletedException.class)
+    public ResponseEntity<String> handleEntityCanNotBeDeletedException(EntityCanNotBeDeletedException ex) {
+        return ResponseEntity.status(HttpStatus.LOCKED).body(ex.getMessage());
     }
 }
