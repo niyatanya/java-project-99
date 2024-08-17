@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
@@ -24,6 +25,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 public class TaskStatus implements BaseEntity {
 
     @Id
@@ -40,4 +42,9 @@ public class TaskStatus implements BaseEntity {
 
     @CreatedDate
     private Timestamp createdAt;
+
+    public TaskStatus(String name, String slug) {
+        this.name = name;
+        this.slug = slug;
+    }
 }

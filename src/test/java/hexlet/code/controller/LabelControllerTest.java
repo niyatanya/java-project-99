@@ -2,11 +2,13 @@ package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import hexlet.code.dto.TaskStatusCreateDTO;
-import hexlet.code.mapper.TaskStatusMapper;
+import hexlet.code.dto.LabelParamsDTO;
+import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Task;
+import hexlet.code.model.Label;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
+import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import org.instancio.Instancio;
 import org.instancio.Select;
@@ -23,8 +25,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TaskStatusesControllerTest {
+public class LabelControllerTest {
 
     @Autowired
     private WebApplicationContext wac;
@@ -47,18 +47,21 @@ public class TaskStatusesControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private TaskStatusRepository statusRepository;
+    private LabelRepository labelRepository;
 
     @Autowired
     private TaskRepository taskRepository;
 
     @Autowired
-    private TaskStatusMapper mapper;
+    private TaskStatusRepository statusRepository;
+
+    @Autowired
+    private LabelMapper mapper;
 
     @Autowired
     private ObjectMapper om;
 
-    private TaskStatus testStatus;
+    private Label testLabel;
 
     @BeforeEach
     public void setUp() {
@@ -67,17 +70,17 @@ public class TaskStatusesControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        testStatus = Instancio.of(TaskStatus.class)
-                .ignore(Select.field(TaskStatus::getId))
-                .ignore(Select.field(TaskStatus::getCreatedAt))
+        testLabel = Instancio.of(Label.class)
+                .ignore(Select.field(Label::getId))
+                .ignore(Select.field(Label::getCreatedAt))
                 .create();
     }
 
     @Test
     public void testIndex() throws Exception {
-        statusRepository.save(testStatus);
+        labelRepository.save(testLabel);
 
-        MvcResult result = mockMvc.perform(get("/api/task_statuses").with(jwt()))
+        MvcResult result = mockMvc.perform(get("/api/labels").with(jwt()))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -87,9 +90,9 @@ public class TaskStatusesControllerTest {
 
     @Test
     public void testShow() throws Exception {
-        statusRepository.save(testStatus);
+        labelRepository.save(testLabel);
 
-        var request = get("/api/task_statuses/{id}", testStatus.getId()).with(jwt());
+        var request = get("/api/labels/{id}", testLabel.getId()).with(jwt());
 
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isOk())
@@ -97,17 +100,16 @@ public class TaskStatusesControllerTest {
 
         String body = result.getResponse().getContentAsString();
         assertThatJson(body).and(
-                v -> v.node("name").isEqualTo(testStatus.getName())
+                v -> v.node("name").isEqualTo(testLabel.getName())
         );
     }
 
     @Test
     public void testCreate() throws Exception {
-        TaskStatusCreateDTO dto = new TaskStatusCreateDTO();
-        dto.setName(testStatus.getName());
-        dto.setSlug(testStatus.getSlug());
+        LabelParamsDTO dto = new LabelParamsDTO();
+        dto.setName(testLabel.getName());
 
-        MockHttpServletRequestBuilder request = post("/api/task_statuses")
+        MockHttpServletRequestBuilder request = post("/api/labels")
                 .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
@@ -116,19 +118,16 @@ public class TaskStatusesControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        TaskStatus status = statusRepository.findBySlug(testStatus.getSlug()).get();
-
-        assertThat(status).isNotNull();
-        assertThat(status.getName()).isEqualTo(testStatus.getName());
+        Label label = labelRepository.findByName(testLabel.getName()).get();
+        assertThat(label).isNotNull();
     }
 
     @Test
-    public void testCreateWithNotValidSlug() throws Exception {
-        TaskStatusCreateDTO dto = new TaskStatusCreateDTO();
-        dto.setName(testStatus.getName());
-        dto.setSlug("");
+    public void testCreateWithNotValidName() throws Exception {
+        LabelParamsDTO dto = new LabelParamsDTO();
+        dto.setName("aa");
 
-        MockHttpServletRequestBuilder request = post("/api/task_statuses")
+        MockHttpServletRequestBuilder request = post("/api/labels")
                 .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
@@ -139,13 +138,12 @@ public class TaskStatusesControllerTest {
 
     @Test
     public void testUpdate() throws Exception {
-        statusRepository.save(testStatus);
+        labelRepository.save(testLabel);
 
-        TaskStatus data = new TaskStatus();
+        Label data = new Label();
         data.setName("New name");
-        data.setSlug("New slug");
 
-        MockHttpServletRequestBuilder request = put("/api/task_statuses/{id}", testStatus.getId())
+        MockHttpServletRequestBuilder request = put("/api/labels/{id}", testLabel.getId())
                 .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(data));
@@ -153,56 +151,63 @@ public class TaskStatusesControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isOk());
 
-        TaskStatus status = statusRepository.findById(testStatus.getId()).get();
+        Label label = labelRepository.findById(testLabel.getId()).get();
 
-        assertThat(status).isNotNull();
-        assertThat(status.getName()).isEqualTo(data.getName());
-        assertThat(status.getSlug()).isEqualTo(data.getSlug());
-    }
-
-    @Test
-    public void testPartialUpdate() throws Exception {
-        statusRepository.save(testStatus);
-
-        Map<String, String> dto = new HashMap<>();
-        dto.put("name", "Another name");
-
-        MockHttpServletRequestBuilder request = put("/api/task_statuses/{id}", testStatus.getId())
-                .with(jwt())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(dto));
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk());
-
-        TaskStatus status = statusRepository.findById(testStatus.getId()).get();
-
-        assertThat(status).isNotNull();
-        assertThat(status.getName()).isEqualTo(dto.get("name"));
-        assertThat(status.getSlug()).isEqualTo(testStatus.getSlug());
+        assertThat(label).isNotNull();
+        assertThat(label.getName()).isEqualTo(data.getName());
     }
 
     @Test
     public void testDelete() throws Exception {
-        statusRepository.save(testStatus);
+        labelRepository.save(testLabel);
 
-        MockHttpServletRequestBuilder request = delete("/api/task_statuses/{id}", testStatus.getId()).with(jwt());
+        MockHttpServletRequestBuilder request = delete("/api/labels/{id}", testLabel.getId()).with(jwt());
 
         mockMvc.perform(request)
                 .andExpect(status().isNoContent());
 
-        assertThat(statusRepository.existsById(testStatus.getId())).isEqualTo(false);
+        assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(false);
     }
 
     @Test
     public void testDeleteWithoutAuthorization() throws Exception {
-        statusRepository.save(testStatus);
+        labelRepository.save(testLabel);
 
-        MockHttpServletRequestBuilder request = delete("/api/task_statuses/{id}", testStatus.getId());
+        MockHttpServletRequestBuilder request = delete("/api/labels/{id}", testLabel.getId());
 
         mockMvc.perform(request)
                 .andExpect(status().isUnauthorized());
 
-        assertThat(statusRepository.existsById(testStatus.getId())).isEqualTo(true);
+        assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(true);
     }
+
+//    @Test
+//    public void testDeleteLabelWithTask() throws Exception {
+//        labelRepository.save(testLabel);
+//
+//        TaskStatus testStatus = Instancio.of(TaskStatus.class)
+//                .ignore(Select.field(TaskStatus::getId))
+//                .ignore(Select.field(TaskStatus::getCreatedAt))
+//                .create();
+//        statusRepository.save(testStatus);
+//
+//        Task testTask = Instancio.of(Task.class)
+//                .ignore(Select.field(Task::getId))
+//                .ignore(Select.field(Task::getCreatedAt))
+//                .ignore(Select.field(Task::getAssignee))
+//                .ignore(Select.field(Task::getTaskStatus))
+//                .ignore(Select.field(Task::getLabels))
+//                .create();
+//        testTask.setTaskStatus(testStatus);
+//        //Как работать с коллекцией лейблов
+//        //testTask.getLabels.add(testLabel);
+//        taskRepository.save(testTask);
+//
+//        MockHttpServletRequestBuilder request = delete("/api/labels/{id}", testLabel.getId()).with(jwt());
+//
+//        mockMvc.perform(request)
+//                .andExpect(status().isLocked());
+//
+//        assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(true);
+//    }
 }

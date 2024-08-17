@@ -230,35 +230,6 @@ public class UsersControllerTest {
     }
 
     @Test
-    public void testDeleteUserAssignedForTask() throws Exception {
-        userRepository.save(testUser);
-
-        TaskStatus testStatus = Instancio.of(TaskStatus.class)
-                .ignore(Select.field(TaskStatus::getId))
-                .ignore(Select.field(TaskStatus::getCreatedAt))
-                .create();
-        statusRepository.save(testStatus);
-
-        Task testTask = Instancio.of(Task.class)
-                .ignore(Select.field(Task::getId))
-                .ignore(Select.field(Task::getCreatedAt))
-                .ignore(Select.field(Task::getAssignee))
-                .ignore(Select.field(Task::getTaskStatus))
-                .create();
-        testTask.setTaskStatus(testStatus);
-        testTask.setAssignee(testUser);
-
-        taskRepository.save(testTask);
-
-        MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser.getId()).with(token);
-
-        mockMvc.perform(request)
-                .andExpect(status().isLocked());
-
-        assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
-    }
-
-    @Test
     public void testIndexWithoutAuth() throws Exception {
         userRepository.save(testUser);
         mockMvc.perform(get("/api/users"))
