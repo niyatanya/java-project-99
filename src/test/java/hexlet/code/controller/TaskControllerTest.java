@@ -3,9 +3,11 @@ package hexlet.code.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.dto.TaskCreateDTO;
 import hexlet.code.mapper.TaskMapper;
+import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
+import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
@@ -25,6 +27,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,6 +60,9 @@ public class TaskControllerTest {
     private TaskStatusRepository statusRepository;
 
     @Autowired
+    private LabelRepository labelRepository;
+
+    @Autowired
     private TaskMapper mapper;
 
     @Autowired
@@ -66,6 +73,8 @@ public class TaskControllerTest {
     private TaskStatus testStatus;
 
     private User testUser;
+
+    private Label testLabel;
 
     @BeforeEach
     public void setUp() {
@@ -89,6 +98,13 @@ public class TaskControllerTest {
                 .create();
         statusRepository.save(testStatus);
 
+        testLabel = Instancio.of(Label.class)
+                .ignore(Select.field(Label::getId))
+                .ignore(Select.field(Label::getCreatedAt))
+                .ignore(Select.field(Label::getTasks))
+                .create();
+        labelRepository.save(testLabel);
+
         testTask = Instancio.of(Task.class)
                 .ignore(Select.field(Task::getId))
                 .ignore(Select.field(Task::getCreatedAt))
@@ -98,6 +114,10 @@ public class TaskControllerTest {
                 .create();
         testTask.setAssignee(testUser);
         testTask.setTaskStatus(testStatus);
+
+        Set<Label> labels = new HashSet<>();
+        labels.add(testLabel);
+        testTask.setLabels(labels);
     }
 
     @Test
@@ -140,6 +160,7 @@ public class TaskControllerTest {
         dto.setTitle("Add front to app");
         dto.setContent("Install npm, unpack front application, debug");
         dto.setStatus(testStatus.getSlug());
+        dto.setLabels(testTask.getLabels());
 
         MockHttpServletRequestBuilder request = post("/api/tasks")
                 .with(jwt())
@@ -165,10 +186,8 @@ public class TaskControllerTest {
         taskRepository.save(testTask);
 
         TaskCreateDTO data = new TaskCreateDTO();
-        data.setAssigneeId(testUser.getId());
         data.setTitle("Write CRUD for task");
         data.setContent("Write model, dto, mapper, repository, tests and controller");
-        data.setStatus(testStatus.getSlug());
 
         MockHttpServletRequestBuilder request = put("/api/tasks/{id}", testTask.getId())
                 .with(jwt())
@@ -183,7 +202,6 @@ public class TaskControllerTest {
         assertThat(task).isNotNull();
         assertThat(task.getName()).isEqualTo(data.getTitle());
         assertThat(task.getDescription()).isEqualTo(data.getContent());
-        assertThat(task.getAssignee().getId()).isEqualTo(data.getAssigneeId());
 
         taskRepository.delete(task);
     }

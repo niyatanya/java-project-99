@@ -1,9 +1,12 @@
 package hexlet.code.dto;
 
+import hexlet.code.model.Label;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Set;
 
 @Getter
 @Setter
@@ -19,4 +22,6 @@ public class TaskCreateDTO {
 
     @NotNull
     private String status;
+
+    private Set<Label> labels;
 }

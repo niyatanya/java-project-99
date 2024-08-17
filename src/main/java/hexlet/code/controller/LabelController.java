@@ -1,10 +1,8 @@
 package hexlet.code.controller;
 
 import hexlet.code.dto.LabelParamsDTO;
-import hexlet.code.exception.EntityCanNotBeDeletedException;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.LabelMapper;
-import hexlet.code.model.Task;
 import hexlet.code.model.Label;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.LabelRepository;
