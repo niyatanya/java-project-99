@@ -135,6 +135,39 @@ public class TaskControllerTest {
     }
 
     @Test
+    public void testIndexWithFilter() throws Exception {
+        Task testTask2 = Instancio.of(Task.class)
+                .ignore(Select.field(Task::getId))
+                .ignore(Select.field(Task::getCreatedAt))
+                .ignore(Select.field(Task::getAssignee))
+                .ignore(Select.field(Task::getTaskStatus))
+                .ignore(Select.field(Task::getLabels))
+                .create();
+        testTask2.setTaskStatus(testStatus);
+
+        taskRepository.save(testTask);
+        taskRepository.save(testTask2);
+
+        MvcResult result = mockMvc.perform(
+                get("/api/tasks?titleCont={titleCont}&assigneeId={id}",
+                        testTask.getName().substring(0, 3),
+                        testUser.getId())
+                            .with(jwt()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String body = result.getResponse().getContentAsString();
+        assertThatJson(body).isArray().allSatisfy(element ->
+                        assertThatJson(element)
+                                .and(v -> v.node("title").asString().containsIgnoringCase(testTask.getName()))
+                                .and(v -> v.node("assignee_id").isEqualTo(testTask.getAssignee().getId()))
+        );
+
+        taskRepository.delete(testTask);
+        taskRepository.delete(testTask2);
+    }
+
+    @Test
     public void testShow() throws Exception {
         taskRepository.save(testTask);
 
