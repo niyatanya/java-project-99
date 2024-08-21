@@ -2,7 +2,7 @@ package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import hexlet.code.dto.LabelParamsDTO;
+import hexlet.code.dto.LabelCreateDTO;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Label;
 import hexlet.code.repository.TaskRepository;
@@ -104,7 +104,7 @@ public class LabelControllerTest {
 
     @Test
     public void testCreate() throws Exception {
-        LabelParamsDTO dto = new LabelParamsDTO();
+        LabelCreateDTO dto = new LabelCreateDTO();
         dto.setName(testLabel.getName());
 
         MockHttpServletRequestBuilder request = post("/api/labels")
@@ -122,7 +122,7 @@ public class LabelControllerTest {
 
     @Test
     public void testCreateWithNotValidName() throws Exception {
-        LabelParamsDTO dto = new LabelParamsDTO();
+        LabelCreateDTO dto = new LabelCreateDTO();
         dto.setName("aa");
 
         MockHttpServletRequestBuilder request = post("/api/labels")

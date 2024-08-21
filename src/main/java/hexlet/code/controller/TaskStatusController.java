@@ -1,6 +1,7 @@
 package hexlet.code.controller;
 
 import hexlet.code.dto.TaskStatusCreateDTO;
+import hexlet.code.dto.TaskStatusDTO;
 import hexlet.code.dto.TaskStatusUpdateDTO;
 import hexlet.code.exception.EntityCanNotBeDeletedException;
 import hexlet.code.exception.ResourceNotFoundException;
@@ -40,35 +41,39 @@ public class TaskStatusController {
     private TaskStatusMapper mapper;
 
     @GetMapping
-    public ResponseEntity<List<TaskStatus>> index() {
+    public ResponseEntity<List<TaskStatusDTO>> index() {
         List<TaskStatus> statuses = statusRepository.findAll();
+        List<TaskStatusDTO> result = statuses.stream()
+                .map(mapper::map)
+                .toList();
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(statuses.size()))
-                .body(statuses);
+                .body(result);
     }
 
     @GetMapping(path = "/{id}")
-    private TaskStatus show(@PathVariable long id) {
-        return statusRepository.findById(id)
+    private TaskStatusDTO show(@PathVariable long id) {
+         TaskStatus status = statusRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task status with " + id + " not found."));
+        return mapper.map(status);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private TaskStatus create(@Valid @RequestBody TaskStatusCreateDTO data) {
+    private TaskStatusDTO create(@Valid @RequestBody TaskStatusCreateDTO data) {
         TaskStatus status = mapper.map(data);
         statusRepository.save(status);
-        return status;
+        return mapper.map(status);
     }
 
     @PutMapping(path = "/{id}")
-    public TaskStatus update(@Valid @RequestBody TaskStatusUpdateDTO data,
+    public TaskStatusDTO update(@Valid @RequestBody TaskStatusUpdateDTO data,
                              @PathVariable long id) {
         TaskStatus status = statusRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task status with " + id + " not found."));
         mapper.update(data, status);
         statusRepository.save(status);
-        return status;
+        return mapper.map(status);
     }
 
     @DeleteMapping(path = "/{id}")

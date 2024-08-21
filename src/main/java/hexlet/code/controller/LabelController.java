@@ -1,6 +1,8 @@
 package hexlet.code.controller;
 
-import hexlet.code.dto.LabelParamsDTO;
+import hexlet.code.dto.LabelCreateDTO;
+import hexlet.code.dto.LabelDTO;
+import hexlet.code.dto.LabelUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Label;
@@ -37,35 +39,39 @@ public class LabelController {
     private LabelMapper mapper;
 
     @GetMapping
-    public ResponseEntity<List<Label>> index() {
+    public ResponseEntity<List<LabelDTO>> index() {
         List<Label> labels = labelRepository.findAll();
+        List<LabelDTO> result = labels.stream()
+                .map(mapper::map)
+                .toList();
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(labels.size()))
-                .body(labels);
+                .body(result);
     }
 
     @GetMapping(path = "/{id}")
-    private Label show(@PathVariable long id) {
-        return labelRepository.findById(id)
+    private LabelDTO show(@PathVariable long id) {
+        Label label = labelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Label with " + id + " not found."));
+        return mapper.map(label);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private Label create(@Valid @RequestBody LabelParamsDTO data) {
+    private LabelDTO create(@Valid @RequestBody LabelCreateDTO data) {
         Label label = mapper.map(data);
         labelRepository.save(label);
-        return label;
+        return mapper.map(label);
     }
 
     @PutMapping(path = "/{id}")
-    public Label update(@Valid @RequestBody LabelParamsDTO data,
+    public LabelDTO update(@Valid @RequestBody LabelUpdateDTO data,
                              @PathVariable long id) {
         Label label = labelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task label with " + id + " not found."));
         mapper.update(data, label);
         labelRepository.save(label);
-        return label;
+        return mapper.map(label);
     }
 
     @DeleteMapping(path = "/{id}")

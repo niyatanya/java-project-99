@@ -193,7 +193,7 @@ public class TaskControllerTest {
         dto.setTitle("Add front to app");
         dto.setContent("Install npm, unpack front application, debug");
         dto.setStatus(testStatus.getSlug());
-        dto.setLabels(testTask.getLabels());
+        dto.setTaskLabelIds(new HashSet<Long>(testTask.getLabels().stream().map(Label::getId).toList()));
 
         MockHttpServletRequestBuilder request = post("/api/tasks")
                 .with(jwt())

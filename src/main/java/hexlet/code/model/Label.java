@@ -33,7 +33,7 @@ public class Label implements BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(unique = true)
     @Size(min = 3, max = 1000)
