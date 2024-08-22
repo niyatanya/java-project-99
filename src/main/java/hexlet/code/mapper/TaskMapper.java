@@ -67,7 +67,10 @@ public abstract class TaskMapper {
     }
 
     protected Set<Label> labelsFromLabelIds(Set<Long> taskLabelIds) {
-        return new HashSet<>(labelRepository.findAllById(taskLabelIds));
+        if (taskLabelIds != null) {
+            return new HashSet<>(labelRepository.findAllById(taskLabelIds));
+        }
+        return new HashSet<Label>();
     }
 
     protected Set<Label> labelsFromJsonNullableLabelIds(JsonNullable<Set<Long>> taskLabelIds) {
