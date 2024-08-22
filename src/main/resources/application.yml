@@ -12,6 +12,7 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+      dialect: My.SQLDialect
   output:
     ansi:
       enabled: always
