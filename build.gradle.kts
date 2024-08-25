@@ -8,6 +8,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.6"
 	checkstyle
 	jacoco
+	id("io.sentry.jvm.gradle") version "4.11.0"
 }
 
 group = "hexlet.code"
@@ -60,6 +61,7 @@ dependencies {
 	testImplementation("org.springframework.security:spring-security-test")
 
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+	implementation("io.sentry:sentry-spring-boot-starter-jakarta:7.14.0")
 }
 
 tasks.withType<Test> {
@@ -85,4 +87,11 @@ tasks.jacocoTestReport {
 	reports {
 		xml.required = true
 	}
+}
+
+sentry {
+	includeSourceContext = true
+	org = "tatiana-naumenko"
+	projectName = "java-spring-boot"
+	authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }

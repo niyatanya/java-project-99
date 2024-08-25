@@ -16,3 +16,7 @@ spring:
   output:
     ansi:
       enabled: always
+
+sentry:
+  dsn: https://7028c96741d06defc3c0c3cea471765e@o4507837344251904.ingest.us.sentry.io/4507837353230336
+  tracesSampleRate: 1.0
