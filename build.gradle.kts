@@ -89,9 +89,13 @@ tasks.jacocoTestReport {
 	}
 }
 
-sentry {
-	includeSourceContext = true
-	org = "tatiana-naumenko"
-	projectName = "java-spring-boot"
-	authToken = System.getenv("SENTRY_AUTH_TOKEN")
+val sentryAuthToken = System.getenv("SENTRY_AUTH_TOKEN")
+
+if (!sentryAuthToken.isNullOrEmpty()) {
+	sentry {
+		includeSourceContext = true
+		org = "tatiana-naumenko"
+		projectName = "java-spring-boot"
+		authToken = sentryAuthToken
+	}
 }
