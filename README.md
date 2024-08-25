@@ -4,4 +4,6 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/2608f83f038815497915/maintainability)](https://codeclimate.com/github/niyatanya/java-project-99/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/2608f83f038815497915/test_coverage)](https://codeclimate.com/github/niyatanya/java-project-99/test_coverage)
 
-App under construction is availabe [here](https://task-manager-ic67.onrender.com)
+Deployed app is availabe [here](https://task-manager-ic67.onrender.com)
+
+API documentation may be found [here](https://task-manager-ic67.onrender.com/swagger-ui/index.html)
