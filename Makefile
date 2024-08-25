@@ -1,8 +1,14 @@
 run-dist: #запуск программы
 	./build/install/app/bin/app
 
+install:
+	./gradlew installDist
+
 start:
 	./gradlew run
+
+backend:
+	./gradlew bootRun --args='--spring.profiles.active=development'
 
 build:
 	./gradlew clean

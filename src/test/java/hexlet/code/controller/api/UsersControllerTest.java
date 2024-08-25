@@ -1,8 +1,10 @@
-package hexlet.code.controller;
+package hexlet.code.controller.api;
 
 import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.mapper.UserMapper;
+import hexlet.code.model.Task;
+import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.service.UserService;
@@ -206,6 +208,39 @@ public class UsersControllerTest {
                 .andExpect(status().isNoContent());
 
         assertThat(userRepository.existsById(testUser.getId())).isEqualTo(false);
+    }
+
+    @Test
+    public void testDeleteUserWithTask() throws Exception {
+        userRepository.save(testUser);
+
+        TaskStatus testStatus = Instancio.of(TaskStatus.class)
+                .ignore(Select.field(TaskStatus::getId))
+                .ignore(Select.field(TaskStatus::getCreatedAt))
+                .create();
+        statusRepository.save(testStatus);
+
+        Task testTask = Instancio.of(Task.class)
+                .ignore(Select.field(Task::getId))
+                .ignore(Select.field(Task::getCreatedAt))
+                .ignore(Select.field(Task::getAssignee))
+                .ignore(Select.field(Task::getTaskStatus))
+                .ignore(Select.field(Task::getLabels))
+                .create();
+        testTask.setTaskStatus(testStatus);
+        testTask.setAssignee(testUser);
+        taskRepository.save(testTask);
+
+        MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser.getId()).with(token);
+
+        mockMvc.perform(request)
+                .andExpect(status().isLocked());
+
+        assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
+
+        taskRepository.delete(testTask);
+        statusRepository.delete(testStatus);
+        userRepository.delete(testUser);
     }
 
     @Test

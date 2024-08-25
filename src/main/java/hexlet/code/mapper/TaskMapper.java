@@ -62,10 +62,6 @@ public abstract class TaskMapper {
                 .orElseThrow(() -> new ResourceNotFoundException("Slug " + slug + " not found"));
     }
 
-    protected String statusSlugFromTaskStatus(TaskStatus status) {
-        return status.getSlug();
-    }
-
     protected Set<Label> labelsFromLabelIds(Set<Long> taskLabelIds) {
         if (taskLabelIds != null) {
             return new HashSet<>(labelRepository.findAllById(taskLabelIds));

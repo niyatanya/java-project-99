@@ -1,11 +1,13 @@
-package hexlet.code.controller;
+package hexlet.code.controller.api;
 
 import hexlet.code.dto.LabelCreateDTO;
 import hexlet.code.dto.LabelDTO;
 import hexlet.code.dto.LabelUpdateDTO;
+import hexlet.code.exception.EntityCanNotBeDeletedException;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Label;
+import hexlet.code.model.Task;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.LabelRepository;
 
@@ -76,7 +78,19 @@ public class LabelController {
 
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable long id) {
-        labelRepository.deleteById(id);
+    public void delete(@PathVariable long id) throws Exception {
+        Label label = labelRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Label with " + id + " not found."));
+
+        List<Task> tasks = taskRepository.findAll();
+        List<Task> tasksWithLabel = tasks.stream()
+                .filter(t -> t.getLabels().contains(label))
+                .toList();
+
+        if (tasksWithLabel.isEmpty()) {
+            labelRepository.deleteById(id);
+        } else {
+            throw new EntityCanNotBeDeletedException("Label can not be deleted while at least one task has it.");
+        }
     }
 }

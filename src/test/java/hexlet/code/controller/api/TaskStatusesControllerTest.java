@@ -1,9 +1,10 @@
-package hexlet.code.controller;
+package hexlet.code.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hexlet.code.dto.TaskStatusCreateDTO;
 import hexlet.code.mapper.TaskStatusMapper;
+import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
@@ -203,5 +204,30 @@ public class TaskStatusesControllerTest {
                 .andExpect(status().isUnauthorized());
 
         assertThat(statusRepository.existsById(testStatus.getId())).isEqualTo(true);
+    }
+
+    @Test
+    public void testDeleteTaskStatusWithTask() throws Exception {
+        statusRepository.save(testStatus);
+
+        Task testTask = Instancio.of(Task.class)
+                .ignore(Select.field(Task::getId))
+                .ignore(Select.field(Task::getCreatedAt))
+                .ignore(Select.field(Task::getAssignee))
+                .ignore(Select.field(Task::getTaskStatus))
+                .ignore(Select.field(Task::getLabels))
+                .create();
+        testTask.setTaskStatus(testStatus);
+        taskRepository.save(testTask);
+
+        MockHttpServletRequestBuilder request = delete("/api/task_statuses/{id}", testStatus.getId()).with(jwt());
+
+        mockMvc.perform(request)
+                .andExpect(status().isLocked());
+
+        assertThat(statusRepository.existsById(testStatus.getId())).isEqualTo(true);
+
+        taskRepository.delete(testTask);
+        statusRepository.delete(testStatus);
     }
 }

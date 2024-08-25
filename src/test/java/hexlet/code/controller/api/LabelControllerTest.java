@@ -1,10 +1,12 @@
-package hexlet.code.controller;
+package hexlet.code.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hexlet.code.dto.LabelCreateDTO;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Label;
+import hexlet.code.model.Task;
+import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
@@ -71,6 +73,7 @@ public class LabelControllerTest {
         testLabel = Instancio.of(Label.class)
                 .ignore(Select.field(Label::getId))
                 .ignore(Select.field(Label::getCreatedAt))
+                .ignore(Select.field(Label::getTasks))
                 .create();
     }
 
@@ -84,6 +87,8 @@ public class LabelControllerTest {
 
         String body = result.getResponse().getContentAsString();
         assertThatJson(body).isArray();
+
+        labelRepository.delete(testLabel);
     }
 
     @Test
@@ -100,6 +105,8 @@ public class LabelControllerTest {
         assertThatJson(body).and(
                 v -> v.node("name").isEqualTo(testLabel.getName())
         );
+
+        labelRepository.delete(testLabel);
     }
 
     @Test
@@ -118,6 +125,8 @@ public class LabelControllerTest {
 
         Label label = labelRepository.findByName(testLabel.getName()).get();
         assertThat(label).isNotNull();
+
+        labelRepository.delete(testLabel);
     }
 
     @Test
@@ -153,6 +162,8 @@ public class LabelControllerTest {
 
         assertThat(label).isNotNull();
         assertThat(label.getName()).isEqualTo(data.getName());
+
+        labelRepository.delete(testLabel);
     }
 
     @Test
@@ -177,35 +188,39 @@ public class LabelControllerTest {
                 .andExpect(status().isUnauthorized());
 
         assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(true);
+
+        labelRepository.delete(testLabel);
     }
 
-//    @Test
-//    public void testDeleteLabelWithTask() throws Exception {
-//        labelRepository.save(testLabel);
-//
-//        TaskStatus testStatus = Instancio.of(TaskStatus.class)
-//                .ignore(Select.field(TaskStatus::getId))
-//                .ignore(Select.field(TaskStatus::getCreatedAt))
-//                .create();
-//        statusRepository.save(testStatus);
-//
-//        Task testTask = Instancio.of(Task.class)
-//                .ignore(Select.field(Task::getId))
-//                .ignore(Select.field(Task::getCreatedAt))
-//                .ignore(Select.field(Task::getAssignee))
-//                .ignore(Select.field(Task::getTaskStatus))
-//                .ignore(Select.field(Task::getLabels))
-//                .create();
-//        testTask.setTaskStatus(testStatus);
-//        //Как работать с коллекцией лейблов
-//        //testTask.getLabels.add(testLabel);
-//        taskRepository.save(testTask);
-//
-//        MockHttpServletRequestBuilder request = delete("/api/labels/{id}", testLabel.getId()).with(jwt());
-//
-//        mockMvc.perform(request)
-//                .andExpect(status().isLocked());
-//
-//        assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(true);
-//    }
+    @Test
+    public void testDeleteLabelWithTask() throws Exception {
+        labelRepository.save(testLabel);
+
+        TaskStatus testStatus = Instancio.of(TaskStatus.class)
+                .ignore(Select.field(TaskStatus::getId))
+                .ignore(Select.field(TaskStatus::getCreatedAt))
+                .create();
+        statusRepository.save(testStatus);
+
+        Task testTask = Instancio.of(Task.class)
+                .ignore(Select.field(Task::getId))
+                .ignore(Select.field(Task::getCreatedAt))
+                .ignore(Select.field(Task::getAssignee))
+                .ignore(Select.field(Task::getTaskStatus))
+                .ignore(Select.field(Task::getLabels))
+                .create();
+        testTask.setTaskStatus(testStatus);
+        testTask.getLabels().add(testLabel);
+        taskRepository.save(testTask);
+
+        MockHttpServletRequestBuilder request = delete("/api/labels/{id}", testLabel.getId()).with(jwt());
+
+        mockMvc.perform(request)
+                .andExpect(status().isLocked());
+
+        assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(true);
+
+        taskRepository.delete(testTask);
+        labelRepository.delete(testLabel);
+    }
 }
