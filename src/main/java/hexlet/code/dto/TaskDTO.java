@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
@@ -12,7 +12,7 @@ import java.util.Set;
 public class TaskDTO {
     private long id;
     private int index;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
     private String title;
     private String content;
     private String status;

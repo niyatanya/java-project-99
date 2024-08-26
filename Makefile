@@ -7,8 +7,8 @@ install:
 start:
 	./gradlew run
 
-backend:
-	./gradlew bootRun --args='--spring.profiles.active=development'
+dev:
+	./gradlew run --args='--spring.profiles.active=development'
 
 build:
 	./gradlew clean
