@@ -16,7 +16,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.sql.Timestamp;
+import java.time.LocalDate;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -44,7 +44,7 @@ public class TaskStatus implements BaseEntity {
     private String slug;
 
     @CreatedDate
-    private Timestamp createdAt;
+    private LocalDate createdAt;
 
     public TaskStatus(String name, String slug) {
         this.name = name;

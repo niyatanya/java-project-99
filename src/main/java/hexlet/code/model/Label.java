@@ -16,7 +16,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,7 +40,7 @@ public class Label implements BaseEntity {
     private String name;
 
     @CreatedDate
-    private Timestamp createdAt;
+    private LocalDate createdAt;
 
     @ManyToMany(mappedBy = "labels")
     private Set<Task> tasks = new HashSet<>();

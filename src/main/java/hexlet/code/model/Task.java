@@ -17,7 +17,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -54,5 +54,5 @@ public class Task implements BaseEntity {
     private Set<Label> labels = new HashSet<>();
 
     @CreatedDate
-    private Timestamp createdAt;
+    private LocalDate createdAt;
 }

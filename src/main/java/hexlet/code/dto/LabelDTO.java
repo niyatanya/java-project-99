@@ -3,12 +3,12 @@ package hexlet.code.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 public class LabelDTO {
     private Long id;
     private String name;
-    private Timestamp createdAt;
+    private LocalDate createdAt;
 }
