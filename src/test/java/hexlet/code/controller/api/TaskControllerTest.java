@@ -78,6 +78,11 @@ public class TaskControllerTest {
 
     @BeforeEach
     public void setUp() {
+        taskRepository.deleteAll();
+        statusRepository.deleteAll();
+        userRepository.deleteAll();
+        labelRepository.deleteAll();
+
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
                 .defaultResponseCharacterEncoding(StandardCharsets.UTF_8)
                 .apply(springSecurity())
@@ -111,8 +116,6 @@ public class TaskControllerTest {
 
         String body = result.getResponse().getContentAsString();
         assertThatJson(body).isArray();
-
-        taskRepository.delete(testTask);
     }
 
     @Test
@@ -137,9 +140,6 @@ public class TaskControllerTest {
                                 .and(v -> v.node("title").asString().containsIgnoringCase(testTask.getName()))
                                 .and(v -> v.node("assignee_id").isEqualTo(testTask.getAssignee().getId()))
         );
-
-        taskRepository.delete(testTask);
-        taskRepository.delete(testTask2);
     }
 
     @Test
@@ -156,8 +156,6 @@ public class TaskControllerTest {
         assertThatJson(body).and(
                 v -> v.node("title").isEqualTo(testTask.getName())
         );
-
-        taskRepository.delete(testTask);
     }
 
     @Test
@@ -185,8 +183,6 @@ public class TaskControllerTest {
 
         assertThat(task).isNotNull();
         assertThat(task.getDescription()).isEqualTo(dto.getContent());
-
-        taskRepository.delete(task);
     }
 
     @Test
@@ -210,8 +206,6 @@ public class TaskControllerTest {
         assertThat(task).isNotNull();
         assertThat(task.getName()).isEqualTo(data.getTitle());
         assertThat(task.getDescription()).isEqualTo(data.getContent());
-
-        taskRepository.delete(task);
     }
 
     @Test
@@ -236,7 +230,5 @@ public class TaskControllerTest {
                 .andExpect(status().isUnauthorized());
 
         assertThat(taskRepository.existsById(testTask.getId())).isEqualTo(true);
-
-        taskRepository.delete(testTask);
     }
 }

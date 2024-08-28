@@ -63,6 +63,9 @@ public class TaskStatusesControllerTest {
 
     @BeforeEach
     public void setUp() {
+        taskRepository.deleteAll();
+        statusRepository.deleteAll();
+
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
                 .defaultResponseCharacterEncoding(StandardCharsets.UTF_8)
                 .apply(springSecurity())
@@ -217,8 +220,5 @@ public class TaskStatusesControllerTest {
                 .andExpect(status().isLocked());
 
         assertThat(statusRepository.existsById(testStatus.getId())).isEqualTo(true);
-
-        taskRepository.delete(testTask);
-        statusRepository.delete(testStatus);
     }
 }

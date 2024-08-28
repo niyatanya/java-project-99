@@ -66,6 +66,8 @@ public class LabelControllerTest {
 
     @BeforeEach
     public void setUp() {
+        labelRepository.deleteAll();
+
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
                 .defaultResponseCharacterEncoding(StandardCharsets.UTF_8)
                 .apply(springSecurity())
@@ -84,8 +86,6 @@ public class LabelControllerTest {
 
         String body = result.getResponse().getContentAsString();
         assertThatJson(body).isArray();
-
-        labelRepository.delete(testLabel);
     }
 
     @Test
@@ -102,8 +102,6 @@ public class LabelControllerTest {
         assertThatJson(body).and(
                 v -> v.node("name").isEqualTo(testLabel.getName())
         );
-
-        labelRepository.delete(testLabel);
     }
 
     @Test
@@ -122,8 +120,6 @@ public class LabelControllerTest {
 
         Label label = labelRepository.findByName(testLabel.getName()).get();
         assertThat(label).isNotNull();
-
-        labelRepository.delete(testLabel);
     }
 
     @Test
@@ -159,8 +155,6 @@ public class LabelControllerTest {
 
         assertThat(label).isNotNull();
         assertThat(label.getName()).isEqualTo(data.getName());
-
-        labelRepository.delete(testLabel);
     }
 
     @Test
@@ -185,8 +179,6 @@ public class LabelControllerTest {
                 .andExpect(status().isUnauthorized());
 
         assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(true);
-
-        labelRepository.delete(testLabel);
     }
 
     @Test
@@ -209,6 +201,6 @@ public class LabelControllerTest {
         assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(true);
 
         taskRepository.delete(testTask);
-        labelRepository.delete(testLabel);
+        statusRepository.delete(testStatus);
     }
 }

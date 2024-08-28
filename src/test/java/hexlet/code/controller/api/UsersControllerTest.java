@@ -75,6 +75,8 @@ public class UsersControllerTest {
 
     @BeforeEach
     public void setUp() {
+        taskRepository.deleteAll();
+        userRepository.deleteAll();
         testUser = generator.getUser();
         token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
     }
@@ -221,9 +223,7 @@ public class UsersControllerTest {
 
         assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
 
-        taskRepository.delete(testTask);
         statusRepository.delete(testStatus);
-        userRepository.delete(testUser);
     }
 
     @Test
