@@ -10,8 +10,7 @@ import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
-import org.instancio.Instancio;
-import org.instancio.Select;
+import hexlet.code.util.InstanceGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +62,8 @@ public class LabelControllerTest {
 
     private Label testLabel;
 
+    private final InstanceGenerator generator = new InstanceGenerator();
+
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
@@ -70,11 +71,7 @@ public class LabelControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        testLabel = Instancio.of(Label.class)
-                .ignore(Select.field(Label::getId))
-                .ignore(Select.field(Label::getCreatedAt))
-                .ignore(Select.field(Label::getTasks))
-                .create();
+        testLabel = generator.getLabel();
     }
 
     @Test
@@ -196,19 +193,10 @@ public class LabelControllerTest {
     public void testDeleteLabelWithTask() throws Exception {
         labelRepository.save(testLabel);
 
-        TaskStatus testStatus = Instancio.of(TaskStatus.class)
-                .ignore(Select.field(TaskStatus::getId))
-                .ignore(Select.field(TaskStatus::getCreatedAt))
-                .create();
+        TaskStatus testStatus = generator.getTaskStatus();
         statusRepository.save(testStatus);
 
-        Task testTask = Instancio.of(Task.class)
-                .ignore(Select.field(Task::getId))
-                .ignore(Select.field(Task::getCreatedAt))
-                .ignore(Select.field(Task::getAssignee))
-                .ignore(Select.field(Task::getTaskStatus))
-                .ignore(Select.field(Task::getLabels))
-                .create();
+        Task testTask = generator.getTask();
         testTask.setTaskStatus(testStatus);
         testTask.getLabels().add(testLabel);
         taskRepository.save(testTask);

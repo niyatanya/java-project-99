@@ -8,6 +8,7 @@ import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.service.UserService;
+import hexlet.code.util.InstanceGenerator;
 import hexlet.code.util.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,9 +31,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.instancio.Instancio;
-import org.instancio.Select;
-import net.datafaker.Faker;
 
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
@@ -73,17 +71,11 @@ public class UsersControllerTest {
 
     private User testUser;
 
-    private final Faker faker = new Faker();
+    private final InstanceGenerator generator = new InstanceGenerator();
 
     @BeforeEach
     public void setUp() {
-        testUser = Instancio.of(User.class)
-                .ignore(Select.field(User::getId))
-                .ignore(Select.field(User::getCreatedAt))
-                .ignore(Select.field(User::getUpdatedAt))
-                .supply(Select.field(User::getEmail), () -> faker.internet().emailAddress())
-                .create();
-
+        testUser = generator.getUser();
         token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
     }
 
@@ -214,19 +206,10 @@ public class UsersControllerTest {
     public void testDeleteUserWithTask() throws Exception {
         userRepository.save(testUser);
 
-        TaskStatus testStatus = Instancio.of(TaskStatus.class)
-                .ignore(Select.field(TaskStatus::getId))
-                .ignore(Select.field(TaskStatus::getCreatedAt))
-                .create();
+        TaskStatus testStatus = generator.getTaskStatus();
         statusRepository.save(testStatus);
 
-        Task testTask = Instancio.of(Task.class)
-                .ignore(Select.field(Task::getId))
-                .ignore(Select.field(Task::getCreatedAt))
-                .ignore(Select.field(Task::getAssignee))
-                .ignore(Select.field(Task::getTaskStatus))
-                .ignore(Select.field(Task::getLabels))
-                .create();
+        Task testTask = generator.getTask();
         testTask.setTaskStatus(testStatus);
         testTask.setAssignee(testUser);
         taskRepository.save(testTask);
@@ -246,12 +229,7 @@ public class UsersControllerTest {
     @Test
     public void testDeleteWithoutAuth() throws Exception {
         userRepository.save(testUser);
-        User testUser2 = Instancio.of(User.class)
-                .ignore(Select.field(User::getId))
-                .ignore(Select.field(User::getCreatedAt))
-                .ignore(Select.field(User::getUpdatedAt))
-                .supply(Select.field(User::getEmail), () -> faker.internet().emailAddress())
-                .create();
+        User testUser2 = generator.getUser();
         userRepository.save(testUser2);
 
         MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser2.getId()).with(token);

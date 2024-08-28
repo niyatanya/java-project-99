@@ -11,9 +11,7 @@ import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
-import net.datafaker.Faker;
-import org.instancio.Instancio;
-import org.instancio.Select;
+import hexlet.code.util.InstanceGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +74,8 @@ public class TaskControllerTest {
 
     private Label testLabel;
 
+    private final InstanceGenerator generator = new InstanceGenerator();
+
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
@@ -83,35 +83,16 @@ public class TaskControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        Faker faker = new Faker();
-        testUser = Instancio.of(User.class)
-                .ignore(Select.field(User::getId))
-                .ignore(Select.field(User::getCreatedAt))
-                .ignore(Select.field(User::getUpdatedAt))
-                .supply(Select.field(User::getEmail), () -> faker.internet().emailAddress())
-                .create();
+        testUser = generator.getUser();
         userRepository.save(testUser);
 
-        testStatus = Instancio.of(TaskStatus.class)
-                .ignore(Select.field(TaskStatus::getId))
-                .ignore(Select.field(TaskStatus::getCreatedAt))
-                .create();
+        testStatus = generator.getTaskStatus();
         statusRepository.save(testStatus);
 
-        testLabel = Instancio.of(Label.class)
-                .ignore(Select.field(Label::getId))
-                .ignore(Select.field(Label::getCreatedAt))
-                .ignore(Select.field(Label::getTasks))
-                .create();
+        testLabel = generator.getLabel();
         labelRepository.save(testLabel);
 
-        testTask = Instancio.of(Task.class)
-                .ignore(Select.field(Task::getId))
-                .ignore(Select.field(Task::getCreatedAt))
-                .ignore(Select.field(Task::getAssignee))
-                .ignore(Select.field(Task::getTaskStatus))
-                .ignore(Select.field(Task::getLabels))
-                .create();
+        testTask = generator.getTask();
         testTask.setAssignee(testUser);
         testTask.setTaskStatus(testStatus);
 
@@ -136,13 +117,7 @@ public class TaskControllerTest {
 
     @Test
     public void testIndexWithFilter() throws Exception {
-        Task testTask2 = Instancio.of(Task.class)
-                .ignore(Select.field(Task::getId))
-                .ignore(Select.field(Task::getCreatedAt))
-                .ignore(Select.field(Task::getAssignee))
-                .ignore(Select.field(Task::getTaskStatus))
-                .ignore(Select.field(Task::getLabels))
-                .create();
+        Task testTask2 = generator.getTask();
         testTask2.setTaskStatus(testStatus);
 
         taskRepository.save(testTask);

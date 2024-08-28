@@ -8,8 +8,7 @@ import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
-import org.instancio.Instancio;
-import org.instancio.Select;
+import hexlet.code.util.InstanceGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +59,8 @@ public class TaskStatusesControllerTest {
 
     private TaskStatus testStatus;
 
+    private final InstanceGenerator generator = new InstanceGenerator();
+
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
@@ -67,10 +68,7 @@ public class TaskStatusesControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        testStatus = Instancio.of(TaskStatus.class)
-                .ignore(Select.field(TaskStatus::getId))
-                .ignore(Select.field(TaskStatus::getCreatedAt))
-                .create();
+        testStatus = generator.getTaskStatus();
     }
 
     @Test
@@ -209,14 +207,7 @@ public class TaskStatusesControllerTest {
     @Test
     public void testDeleteTaskStatusWithTask() throws Exception {
         statusRepository.save(testStatus);
-
-        Task testTask = Instancio.of(Task.class)
-                .ignore(Select.field(Task::getId))
-                .ignore(Select.field(Task::getCreatedAt))
-                .ignore(Select.field(Task::getAssignee))
-                .ignore(Select.field(Task::getTaskStatus))
-                .ignore(Select.field(Task::getLabels))
-                .create();
+        Task testTask = generator.getTask();
         testTask.setTaskStatus(testStatus);
         taskRepository.save(testTask);
 
