@@ -77,6 +77,7 @@ public class UsersControllerTest {
     public void setUp() {
         taskRepository.deleteAll();
         userRepository.deleteAll();
+        statusRepository.deleteAll();
         testUser = generator.getUser();
         token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
     }
@@ -222,8 +223,6 @@ public class UsersControllerTest {
                 .andExpect(status().isLocked());
 
         assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
-
-        statusRepository.delete(testStatus);
     }
 
     @Test

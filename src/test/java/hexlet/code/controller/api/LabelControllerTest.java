@@ -66,6 +66,8 @@ public class LabelControllerTest {
 
     @BeforeEach
     public void setUp() {
+        taskRepository.deleteAll();
+        statusRepository.deleteAll();
         labelRepository.deleteAll();
 
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
@@ -199,8 +201,5 @@ public class LabelControllerTest {
                 .andExpect(status().isLocked());
 
         assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(true);
-
-        taskRepository.delete(testTask);
-        statusRepository.delete(testStatus);
     }
 }
