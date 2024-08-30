@@ -200,19 +200,4 @@ public class TaskStatusesControllerTest {
 
         assertThat(statusRepository.existsById(testStatus.getId())).isEqualTo(false);
     }
-
-    @Test
-    public void testDeleteTaskStatusWithTask() throws Exception {
-        statusRepository.save(testStatus);
-        Task testTask = generator.getTask();
-        testTask.setTaskStatus(testStatus);
-        taskRepository.save(testTask);
-
-        MockHttpServletRequestBuilder request = delete("/api/task_statuses/{id}", testStatus.getId()).with(jwt());
-
-        mockMvc.perform(request)
-                .andExpect(status().isLocked());
-
-        assertThat(statusRepository.existsById(testStatus.getId())).isEqualTo(true);
-    }
 }

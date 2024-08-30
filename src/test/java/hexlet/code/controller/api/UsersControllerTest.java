@@ -214,26 +214,6 @@ public class UsersControllerTest {
     }
 
     @Test
-    public void testDeleteUserWithTask() throws Exception {
-        userRepository.save(testUser);
-
-        TaskStatus testStatus = generator.getTaskStatus();
-        statusRepository.save(testStatus);
-
-        Task testTask = generator.getTask();
-        testTask.setTaskStatus(testStatus);
-        testTask.setAssignee(testUser);
-        taskRepository.save(testTask);
-
-        MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser.getId()).with(token);
-
-        mockMvc.perform(request)
-                .andExpect(status().isLocked());
-
-        assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
-    }
-
-    @Test
     public void testDeleteWithoutAuth() throws Exception {
         userRepository.save(testUser);
         User testUser2 = generator.getUser();

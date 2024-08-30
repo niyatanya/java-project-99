@@ -4,9 +4,7 @@ import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.dto.UserUpdateDTO;
 import hexlet.code.exception.NoAuthorizationToPerformTheOperation;
-import hexlet.code.exception.EntityCanNotBeDeletedException;
 import hexlet.code.mapper.UserMapper;
-import hexlet.code.model.Task;
 import hexlet.code.model.User;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.UserRepository;
@@ -98,16 +96,6 @@ public class UserController {
         if (currentUser.getId() != id) {
             throw new NoAuthorizationToPerformTheOperation("No permission to delete users");
         }
-
-        User user = userRepository.findById(id).orElseThrow();
-
-        List<Task> tasks = taskRepository.findAllByAssignee(user);
-
-        if (tasks.isEmpty()) {
-            userRepository.deleteById(id);
-        } else {
-            throw new EntityCanNotBeDeletedException(
-                    "User can not be deleted while he is assigned at least for one task.");
-        }
+        userRepository.deleteById(id);
     }
 }

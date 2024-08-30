@@ -175,24 +175,4 @@ public class LabelControllerTest {
 
         assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(false);
     }
-
-    @Test
-    public void testDeleteLabelWithTask() throws Exception {
-        labelRepository.save(testLabel);
-
-        TaskStatus testStatus = generator.getTaskStatus();
-        statusRepository.save(testStatus);
-
-        Task testTask = generator.getTask();
-        testTask.setTaskStatus(testStatus);
-        testTask.getLabels().add(testLabel);
-        taskRepository.save(testTask);
-
-        MockHttpServletRequestBuilder request = delete("/api/labels/{id}", testLabel.getId()).with(jwt());
-
-        mockMvc.perform(request)
-                .andExpect(status().isLocked());
-
-        assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(true);
-    }
 }

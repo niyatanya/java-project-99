@@ -3,9 +3,7 @@ package hexlet.code.controller.api;
 import hexlet.code.dto.TaskStatusCreateDTO;
 import hexlet.code.dto.TaskStatusDTO;
 import hexlet.code.dto.TaskStatusUpdateDTO;
-import hexlet.code.exception.EntityCanNotBeDeletedException;
 import hexlet.code.mapper.TaskStatusMapper;
-import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
@@ -76,14 +74,6 @@ public class TaskStatusController {
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) {
-        TaskStatus status = statusRepository.findById(id).orElseThrow();
-
-        List<Task> tasks = taskRepository.findAllByTaskStatus(status);
-
-        if (tasks.isEmpty()) {
-            statusRepository.deleteById(id);
-        } else {
-            throw new EntityCanNotBeDeletedException("Task status can not be deleted while at least one task has it.");
-        }
+        statusRepository.deleteById(id);
     }
 }
