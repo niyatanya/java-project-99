@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 
 import org.springframework.security.access.AccessDeniedException;
 
-import javax.naming.NoPermissionException;
 import java.util.List;
 
 @RestController
@@ -78,7 +77,7 @@ public class UserController {
     @PutMapping(path = "/{id}")
     //value = "@userService.findById(#id).getEmail() == authentication.name"
     //"@userRepository.findById(#id).getEmail() == authentication.principal.username"
-    //@PreAuthorize(value = "@userRepository.findById(#id).getEmail() == authentication.name")
+//    @PreAuthorize(value = "@userRepository.findById(#id).getEmail() == authentication.name")
     private UserDTO update(@Valid @RequestBody UserUpdateDTO dto,
                            @PathVariable long id) throws AccessDeniedException {
         User currentUser = userUtils.getCurrentUser();
