@@ -215,7 +215,7 @@ public class UsersControllerTest {
         MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser2.getId()).with(token);
 
         mockMvc.perform(request)
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
 
         assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
     }
@@ -223,16 +223,19 @@ public class UsersControllerTest {
     @Test
     public void testUpdateWithoutAuth() throws Exception {
         userRepository.save(testUser);
+        User testUser2 = generator.getUser();
+        userRepository.save(testUser2);
 
-        UserDTO dto = mapper.map(testUser);
+        UserDTO dto = mapper.map(testUser2);
         dto.setFirstName("New name (must not be saved)");
 
-        MockHttpServletRequestBuilder request = put("/api/users/{id}", testUser.getId())
+        MockHttpServletRequestBuilder request = put("/api/users/{id}", testUser2.getId())
+                .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
 
         mockMvc.perform(request)
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
 
         User user = userRepository.findById(testUser.getId()).get();
 

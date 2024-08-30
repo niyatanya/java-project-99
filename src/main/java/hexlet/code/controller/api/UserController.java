@@ -3,7 +3,6 @@ package hexlet.code.controller.api;
 import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.dto.user.UserDTO;
 import hexlet.code.dto.user.UserUpdateDTO;
-import hexlet.code.exception.NoAuthorizationToPerformTheOperation;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
 import hexlet.code.repository.TaskRepository;
@@ -26,6 +25,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+
+import org.springframework.security.access.AccessDeniedException;
 
 import javax.naming.NoPermissionException;
 import java.util.List;
@@ -79,10 +80,10 @@ public class UserController {
     //"@userRepository.findById(#id).getEmail() == authentication.principal.username"
     //@PreAuthorize(value = "@userRepository.findById(#id).getEmail() == authentication.name")
     private UserDTO update(@Valid @RequestBody UserUpdateDTO dto,
-                           @PathVariable long id) throws NoPermissionException {
+                           @PathVariable long id) throws AccessDeniedException {
         User currentUser = userUtils.getCurrentUser();
         if (currentUser.getId() != id) {
-            throw new NoAuthorizationToPerformTheOperation("No permission to update users");
+            throw new AccessDeniedException("Access denied.");
         }
 
         return userService.updateUser(dto, id);
@@ -91,10 +92,10 @@ public class UserController {
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
 //    @PreAuthorize(value = "@userRepository.findById(#id).getEmail() == authentication.principal.username")
-    private void delete(@PathVariable long id) throws NoPermissionException {
+    private void delete(@PathVariable long id) throws AccessDeniedException {
         User currentUser = userUtils.getCurrentUser();
         if (currentUser.getId() != id) {
-            throw new NoAuthorizationToPerformTheOperation("No permission to delete users");
+            throw new AccessDeniedException("Access denied.");
         }
         userRepository.deleteById(id);
     }
