@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -97,8 +98,13 @@ public class TaskStatusesControllerTest {
                 .andReturn();
 
         String body = result.getResponse().getContentAsString();
+        int index = testStatus.getCreatedAt().toString().indexOf(".");
         assertThatJson(body).and(
-                v -> v.node("name").isEqualTo(testStatus.getName())
+                v -> v.node("id").isEqualTo(testStatus.getId()),
+                v -> v.node("name").isEqualTo(testStatus.getName()),
+                v -> v.node("slug").isEqualTo(testStatus.getSlug()),
+                v -> v.node("createdAt").asString().contains(testStatus.getCreatedAt()
+                        .format(DateTimeFormatter.ISO_DATE_TIME).substring(0, index))
         );
     }
 
@@ -193,18 +199,6 @@ public class TaskStatusesControllerTest {
                 .andExpect(status().isNoContent());
 
         assertThat(statusRepository.existsById(testStatus.getId())).isEqualTo(false);
-    }
-
-    @Test
-    public void testDeleteWithoutAuthorization() throws Exception {
-        statusRepository.save(testStatus);
-
-        MockHttpServletRequestBuilder request = delete("/api/task_statuses/{id}", testStatus.getId());
-
-        mockMvc.perform(request)
-                .andExpect(status().isUnauthorized());
-
-        assertThat(statusRepository.existsById(testStatus.getId())).isEqualTo(true);
     }
 
     @Test

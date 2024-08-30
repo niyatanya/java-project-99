@@ -14,9 +14,9 @@ import java.util.Optional;
 public interface TaskRepository extends
         JpaRepository<Task, Long>,
         JpaSpecificationExecutor<Task> {
-    Optional<Task> findByNameAndIndex(String name, int index);
-
     List<Task> findAllByAssignee(User assignee);
 
     List<Task> findAllByTaskStatus(TaskStatus status);
+
+    Optional<Task> findByName(String name);
 }

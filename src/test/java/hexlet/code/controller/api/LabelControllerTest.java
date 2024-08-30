@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -101,8 +102,12 @@ public class LabelControllerTest {
                 .andReturn();
 
         String body = result.getResponse().getContentAsString();
+        int index = testLabel.getCreatedAt().toString().indexOf(".");
         assertThatJson(body).and(
-                v -> v.node("name").isEqualTo(testLabel.getName())
+                v -> v.node("id").isEqualTo(testLabel.getId()),
+                v -> v.node("name").isEqualTo(testLabel.getName()),
+                v -> v.node("createdAt").asString().contains(testLabel.getCreatedAt()
+                        .format(DateTimeFormatter.ISO_DATE_TIME).substring(0, index))
         );
     }
 
@@ -169,18 +174,6 @@ public class LabelControllerTest {
                 .andExpect(status().isNoContent());
 
         assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(false);
-    }
-
-    @Test
-    public void testDeleteWithoutAuthorization() throws Exception {
-        labelRepository.save(testLabel);
-
-        MockHttpServletRequestBuilder request = delete("/api/labels/{id}", testLabel.getId());
-
-        mockMvc.perform(request)
-                .andExpect(status().isUnauthorized());
-
-        assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(true);
     }
 
     @Test

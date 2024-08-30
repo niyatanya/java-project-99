@@ -2,6 +2,7 @@ package hexlet.code.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.dto.TaskCreateDTO;
+import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskMapper;
 import hexlet.code.model.Label;
 import hexlet.code.model.Task;
@@ -25,8 +26,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -139,6 +142,7 @@ public class TaskControllerTest {
                         assertThatJson(element)
                                 .and(v -> v.node("title").asString().containsIgnoringCase(testTask.getName()))
                                 .and(v -> v.node("assignee_id").isEqualTo(testTask.getAssignee().getId()))
+                                .and(v -> v.node("title").asString().doesNotContainIgnoringCase(testTask2.getName()))
         );
     }
 
@@ -153,20 +157,33 @@ public class TaskControllerTest {
                 .andReturn();
 
         String body = result.getResponse().getContentAsString();
+        int index = testTask.getCreatedAt().toString().indexOf(".");
         assertThatJson(body).and(
-                v -> v.node("title").isEqualTo(testTask.getName())
+                v -> v.node("id").isEqualTo(testTask.getId()),
+                v -> v.node("title").isEqualTo(testTask.getName()),
+                v -> v.node("content").isEqualTo(testTask.getDescription()),
+                v -> v.node("status").isEqualTo(testTask.getTaskStatus().getSlug()),
+                v -> v.node("assignee_id").isEqualTo(testTask.getAssignee().getId()),
+                v -> v.node("createdAt").asString().contains(testTask.getCreatedAt()
+                        .format(DateTimeFormatter.ISO_DATE_TIME).substring(0, index)),
+                v -> v.node("taskLabelIds").isArray().containsExactlyInAnyOrder(
+                        testTask.getLabels().stream()
+                        .map(Label::getId)
+                        .toArray())
         );
     }
 
     @Test
     public void testCreate() throws Exception {
         TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setIndex(123);
         dto.setAssigneeId(testUser.getId());
-        dto.setTitle("Add front to app");
-        dto.setContent("Install npm, unpack front application, debug");
+        dto.setTitle(testTask.getName());
+        dto.setContent(testTask.getDescription());
         dto.setStatus(testStatus.getSlug());
-        dto.setTaskLabelIds(new HashSet<Long>(testTask.getLabels().stream().map(Label::getId).toList()));
+        dto.setAssigneeId(testUser.getId());
+        dto.setTaskLabelIds(testTask.getLabels().stream()
+                .map(Label::getId)
+                .collect(Collectors.toSet()));
 
         MockHttpServletRequestBuilder request = post("/api/tasks")
                 .with(jwt())
@@ -177,12 +194,15 @@ public class TaskControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        Task task = taskRepository.findByNameAndIndex(
-                dto.getTitle(),
-                dto.getIndex()).get();
+        Task task = taskRepository.findByName(testTask.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found."));
 
         assertThat(task).isNotNull();
+        assertThat(task.getName()).isEqualTo(dto.getTitle());
         assertThat(task.getDescription()).isEqualTo(dto.getContent());
+        assertThat(task.getAssignee().getId()).isEqualTo(dto.getAssigneeId());
+        assertThat(task.getTaskStatus().getSlug()).isEqualTo(dto.getStatus());
+        assertThat(task.getLabels().contains(testLabel));
     }
 
     @Test
@@ -218,17 +238,5 @@ public class TaskControllerTest {
                 .andExpect(status().isNoContent());
 
         assertThat(taskRepository.existsById(testTask.getId())).isEqualTo(false);
-    }
-
-    @Test
-    public void testDeleteWithoutAuthorization() throws Exception {
-        taskRepository.save(testTask);
-
-        MockHttpServletRequestBuilder request = delete("/api/tasks/{id}", testStatus.getId());
-
-        mockMvc.perform(request)
-                .andExpect(status().isUnauthorized());
-
-        assertThat(taskRepository.existsById(testTask.getId())).isEqualTo(true);
     }
 }

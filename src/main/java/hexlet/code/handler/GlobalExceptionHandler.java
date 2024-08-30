@@ -24,6 +24,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NoAuthorizationToPerformTheOperation.class)
     public ResponseEntity<String> handleNoAuthorizationToPerformTheOperation(NoAuthorizationToPerformTheOperation ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 }

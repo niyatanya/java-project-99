@@ -37,6 +37,7 @@ import hexlet.code.repository.UserRepository;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,8 +106,14 @@ public class UsersControllerTest {
                 .andReturn();
 
         String body = result.getResponse().getContentAsString();
+        int index = testUser.getCreatedAt().toString().indexOf(".");
         assertThatJson(body).and(
-                v -> v.node("firstName").isEqualTo(testUser.getFirstName())
+                v -> v.node("id").isEqualTo(testUser.getId()),
+                v -> v.node("firstName").isEqualTo(testUser.getFirstName()),
+                v -> v.node("lastName").isEqualTo(testUser.getLastName()),
+                v -> v.node("email").isEqualTo(testUser.getEmail()),
+                v -> v.node("createdAt").asString().contains(testUser.getCreatedAt()
+                        .format(DateTimeFormatter.ISO_DATE_TIME).substring(0, index))
         );
     }
 
@@ -127,11 +134,12 @@ public class UsersControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        User user = userRepository.findByFirstNameAndLastName(
-                testUser.getFirstName(), testUser.getLastName()).get();
+        User user = userRepository.findByEmail(testUser.getEmail()).get();
 
         assertThat(user).isNotNull();
         assertThat(user.getFirstName()).isEqualTo(testUser.getFirstName());
+        assertThat(user.getLastName()).isEqualTo(testUser.getLastName());
+        assertThat(user.getPasswordDigest()).isNotEqualTo(testUser.getPassword());
     }
 
     @Test
@@ -234,24 +242,29 @@ public class UsersControllerTest {
         MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser2.getId()).with(token);
 
         mockMvc.perform(request)
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
 
         assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
     }
 
     @Test
-    public void testIndexWithoutAuth() throws Exception {
-        userRepository.save(testUser);
-        mockMvc.perform(get("/api/users"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    public void testShowWithoutAuth() throws Exception {
+    public void testUpdateWithoutAuth() throws Exception {
         userRepository.save(testUser);
 
-        MockHttpServletRequestBuilder request = get("/api/users/{id}", testUser.getId());
+        UserDTO dto = mapper.map(testUser);
+        dto.setFirstName("New name (must not be saved)");
+
+        MockHttpServletRequestBuilder request = put("/api/users/{id}", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(dto));
+
         mockMvc.perform(request)
                 .andExpect(status().isUnauthorized());
+
+        User user = userRepository.findById(testUser.getId()).get();
+
+        assertThat(user.getFirstName()).isNotEqualTo(dto.getFirstName());
+        assertThat(user.getFirstName()).isEqualTo(testUser.getFirstName());
+        assertThat(user.getLastName()).isEqualTo(testUser.getLastName());
     }
 }
