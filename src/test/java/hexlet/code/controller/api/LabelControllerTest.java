@@ -2,14 +2,11 @@ package hexlet.code.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import hexlet.code.dto.LabelCreateDTO;
+import hexlet.code.dto.label.LabelCreateDTO;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Label;
-import hexlet.code.model.Task;
-import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.LabelRepository;
-import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.util.InstanceGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,9 +50,6 @@ public class LabelControllerTest {
     private TaskRepository taskRepository;
 
     @Autowired
-    private TaskStatusRepository statusRepository;
-
-    @Autowired
     private LabelMapper mapper;
 
     @Autowired
@@ -68,7 +62,6 @@ public class LabelControllerTest {
     @BeforeEach
     public void setUp() {
         taskRepository.deleteAll();
-        statusRepository.deleteAll();
         labelRepository.deleteAll();
 
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)

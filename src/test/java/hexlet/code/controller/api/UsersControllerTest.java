@@ -1,12 +1,9 @@
 package hexlet.code.controller.api;
 
-import hexlet.code.dto.UserCreateDTO;
-import hexlet.code.dto.UserDTO;
+import hexlet.code.dto.user.UserCreateDTO;
+import hexlet.code.dto.user.UserDTO;
 import hexlet.code.mapper.UserMapper;
-import hexlet.code.model.Task;
-import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
-import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.service.UserService;
 import hexlet.code.util.InstanceGenerator;
 import hexlet.code.util.UserUtils;
@@ -51,9 +48,6 @@ public class UsersControllerTest {
     private UserRepository userRepository;
 
     @Autowired
-    private TaskStatusRepository statusRepository;
-
-    @Autowired
     private TaskRepository taskRepository;
 
     private JwtRequestPostProcessor token;
@@ -78,7 +72,6 @@ public class UsersControllerTest {
     public void setUp() {
         taskRepository.deleteAll();
         userRepository.deleteAll();
-        statusRepository.deleteAll();
         testUser = generator.getUser();
         token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
     }

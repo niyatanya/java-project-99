@@ -1,6 +1,6 @@
 package hexlet.code.specification;
 
-import hexlet.code.dto.TaskParamsDTO;
+import hexlet.code.dto.task.TaskParamsDTO;
 import hexlet.code.model.Task;
 import hexlet.code.repository.LabelRepository;
 import org.springframework.beans.factory.annotation.Autowired;

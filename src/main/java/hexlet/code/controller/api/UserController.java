@@ -1,8 +1,8 @@
 package hexlet.code.controller.api;
 
-import hexlet.code.dto.UserCreateDTO;
-import hexlet.code.dto.UserDTO;
-import hexlet.code.dto.UserUpdateDTO;
+import hexlet.code.dto.user.UserCreateDTO;
+import hexlet.code.dto.user.UserDTO;
+import hexlet.code.dto.user.UserUpdateDTO;
 import hexlet.code.exception.NoAuthorizationToPerformTheOperation;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
