@@ -1,7 +1,6 @@
 package hexlet.code.specification;
 
 import hexlet.code.dto.TaskParamsDTO;
-import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.model.Task;
 import hexlet.code.repository.LabelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +29,7 @@ public class TaskSpecification {
     private Specification<Task> withLabelId(Long labelId) {
         return (root, query, criteriaBuilder) -> labelId == null
                 ? criteriaBuilder.conjunction()
-                : criteriaBuilder.isMember(labelRepository.findById(labelId).orElseThrow(
-                () -> new ResourceNotFoundException("Label with id " + labelId + " not found.")
-                ),
+                : criteriaBuilder.isMember(labelRepository.findById(labelId).orElseThrow(),
                 root.get("labels"));
     }
 

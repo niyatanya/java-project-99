@@ -4,7 +4,6 @@ import hexlet.code.dto.TaskStatusCreateDTO;
 import hexlet.code.dto.TaskStatusDTO;
 import hexlet.code.dto.TaskStatusUpdateDTO;
 import hexlet.code.exception.EntityCanNotBeDeletedException;
-import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
@@ -41,7 +40,7 @@ public class TaskStatusController {
     private TaskStatusMapper mapper;
 
     @GetMapping
-    public ResponseEntity<List<TaskStatusDTO>> index() {
+    public ResponseEntity<List<TaskStatusDTO>> getAll() {
         List<TaskStatus> statuses = statusRepository.findAll();
         List<TaskStatusDTO> result = statuses.stream()
                 .map(mapper::map)
@@ -52,9 +51,8 @@ public class TaskStatusController {
     }
 
     @GetMapping(path = "/{id}")
-    private TaskStatusDTO show(@PathVariable long id) {
-         TaskStatus status = statusRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task status with " + id + " not found."));
+    private TaskStatusDTO getById(@PathVariable long id) {
+         TaskStatus status = statusRepository.findById(id).orElseThrow();
         return mapper.map(status);
     }
 
@@ -69,8 +67,7 @@ public class TaskStatusController {
     @PutMapping(path = "/{id}")
     public TaskStatusDTO update(@Valid @RequestBody TaskStatusUpdateDTO data,
                              @PathVariable long id) {
-        TaskStatus status = statusRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task status with " + id + " not found."));
+        TaskStatus status = statusRepository.findById(id).orElseThrow();
         mapper.update(data, status);
         statusRepository.save(status);
         return mapper.map(status);
@@ -79,8 +76,7 @@ public class TaskStatusController {
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) {
-        TaskStatus status = statusRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task status with " + id + " not found."));
+        TaskStatus status = statusRepository.findById(id).orElseThrow();
 
         List<Task> tasks = taskRepository.findAllByTaskStatus(status);
 

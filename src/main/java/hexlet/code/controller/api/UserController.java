@@ -4,7 +4,6 @@ import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.dto.UserUpdateDTO;
 import hexlet.code.exception.NoAuthorizationToPerformTheOperation;
-import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.exception.EntityCanNotBeDeletedException;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.Task;
@@ -53,7 +52,7 @@ public class UserController {
     private UserUtils userUtils;
 
     @GetMapping
-    private ResponseEntity<List<UserDTO>> index() {
+    private ResponseEntity<List<UserDTO>> getAll() {
         List<User> users = userRepository.findAll();
         List<UserDTO> result = users.stream()
                 .map(mapper::map)
@@ -64,9 +63,8 @@ public class UserController {
     }
 
     @GetMapping(path = "/{id}")
-    private UserDTO show(@PathVariable long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found."));
+    private UserDTO getById(@PathVariable long id) {
+        User user = userRepository.findById(id).orElseThrow();
         return mapper.map(user);
     }
 
@@ -101,8 +99,7 @@ public class UserController {
             throw new NoAuthorizationToPerformTheOperation("No permission to delete users");
         }
 
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found."));
+        User user = userRepository.findById(id).orElseThrow();
 
         List<Task> tasks = taskRepository.findAllByAssignee(user);
 

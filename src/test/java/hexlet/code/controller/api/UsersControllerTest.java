@@ -84,7 +84,7 @@ public class UsersControllerTest {
     }
 
     @Test
-    public void testIndex() throws Exception {
+    public void testGetAll() throws Exception {
         userRepository.save(testUser);
 
         MvcResult result = mockMvc.perform(get("/api/users").with(jwt()))
@@ -96,7 +96,7 @@ public class UsersControllerTest {
     }
 
     @Test
-    public void testShow() throws Exception {
+    public void testGetById() throws Exception {
         userRepository.save(testUser);
 
         var request = get("/api/users/{id}", testUser.getId()).with(jwt());

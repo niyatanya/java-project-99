@@ -4,7 +4,6 @@ import hexlet.code.dto.LabelCreateDTO;
 import hexlet.code.dto.LabelDTO;
 import hexlet.code.dto.LabelUpdateDTO;
 import hexlet.code.exception.EntityCanNotBeDeletedException;
-import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Label;
 import hexlet.code.model.Task;
@@ -41,7 +40,7 @@ public class LabelController {
     private LabelMapper mapper;
 
     @GetMapping
-    public ResponseEntity<List<LabelDTO>> index() {
+    public ResponseEntity<List<LabelDTO>> getAll() {
         List<Label> labels = labelRepository.findAll();
         List<LabelDTO> result = labels.stream()
                 .map(mapper::map)
@@ -52,9 +51,8 @@ public class LabelController {
     }
 
     @GetMapping(path = "/{id}")
-    private LabelDTO show(@PathVariable long id) {
-        Label label = labelRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Label with " + id + " not found."));
+    private LabelDTO getById(@PathVariable long id) {
+        Label label = labelRepository.findById(id).orElseThrow();
         return mapper.map(label);
     }
 
@@ -69,8 +67,7 @@ public class LabelController {
     @PutMapping(path = "/{id}")
     public LabelDTO update(@Valid @RequestBody LabelUpdateDTO data,
                              @PathVariable long id) {
-        Label label = labelRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task label with " + id + " not found."));
+        Label label = labelRepository.findById(id).orElseThrow();
         mapper.update(data, label);
         labelRepository.save(label);
         return mapper.map(label);
@@ -79,8 +76,7 @@ public class LabelController {
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) throws Exception {
-        Label label = labelRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Label with " + id + " not found."));
+        Label label = labelRepository.findById(id).orElseThrow();
 
         List<Task> tasks = taskRepository.findAll();
         List<Task> tasksWithLabel = tasks.stream()

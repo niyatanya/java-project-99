@@ -5,7 +5,6 @@ import hexlet.code.dto.TaskDTO;
 import hexlet.code.dto.TaskParamsDTO;
 import hexlet.code.dto.TaskUpdateDTO;
 
-import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskMapper;
 import hexlet.code.model.Task;
 import hexlet.code.repository.TaskRepository;
@@ -42,7 +41,7 @@ public class TaskController {
     private TaskSpecification specBuilder;
 
     @GetMapping
-    public ResponseEntity<List<TaskDTO>> index(TaskParamsDTO params,
+    public ResponseEntity<List<TaskDTO>> getAll(TaskParamsDTO params,
                                                @RequestParam(defaultValue = "1") int page) {
         Specification<Task> spec = specBuilder.build(params);
         List<Task> tasks = taskRepository.findAll(spec, PageRequest.of(page - 1, 10)).toList();
@@ -55,9 +54,8 @@ public class TaskController {
     }
 
     @GetMapping(path = "/{id}")
-    private TaskDTO show(@PathVariable long id) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task with " + id + " not found."));
+    private TaskDTO getById(@PathVariable long id) {
+        Task task = taskRepository.findById(id).orElseThrow();
         return mapper.map(task);
     }
 
@@ -72,8 +70,7 @@ public class TaskController {
     @PutMapping(path = "/{id}")
     public TaskDTO update(@Valid @RequestBody TaskUpdateDTO data,
                              @PathVariable long id) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task with " + id + " not found."));
+        Task task = taskRepository.findById(id).orElseThrow();
         mapper.update(data, task);
         taskRepository.save(task);
         return mapper.map(task);

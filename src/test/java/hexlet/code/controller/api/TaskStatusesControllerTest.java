@@ -76,7 +76,7 @@ public class TaskStatusesControllerTest {
     }
 
     @Test
-    public void testIndex() throws Exception {
+    public void testGetAll() throws Exception {
         statusRepository.save(testStatus);
 
         MvcResult result = mockMvc.perform(get("/api/task_statuses").with(jwt()))
@@ -88,7 +88,7 @@ public class TaskStatusesControllerTest {
     }
 
     @Test
-    public void testShow() throws Exception {
+    public void testGetById() throws Exception {
         statusRepository.save(testStatus);
 
         var request = get("/api/task_statuses/{id}", testStatus.getId()).with(jwt());

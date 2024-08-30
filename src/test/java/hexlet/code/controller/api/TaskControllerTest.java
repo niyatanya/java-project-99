@@ -2,7 +2,6 @@ package hexlet.code.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.dto.TaskCreateDTO;
-import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskMapper;
 import hexlet.code.model.Label;
 import hexlet.code.model.Task;
@@ -110,7 +109,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void testIndex() throws Exception {
+    public void testGetAll() throws Exception {
         taskRepository.save(testTask);
 
         MvcResult result = mockMvc.perform(get("/api/tasks").with(jwt()))
@@ -122,7 +121,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void testIndexWithFilter() throws Exception {
+    public void testGetAllWithFilter() throws Exception {
         Task testTask2 = generator.getTask();
         testTask2.setTaskStatus(testStatus);
 
@@ -147,7 +146,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void testShow() throws Exception {
+    public void testGetById() throws Exception {
         taskRepository.save(testTask);
 
         var request = get("/api/tasks/{id}", testTask.getId()).with(jwt());
@@ -194,8 +193,7 @@ public class TaskControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        Task task = taskRepository.findByName(testTask.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found."));
+        Task task = taskRepository.findByName(testTask.getName()).orElseThrow();
 
         assertThat(task).isNotNull();
         assertThat(task.getName()).isEqualTo(dto.getTitle());

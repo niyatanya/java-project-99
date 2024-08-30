@@ -80,7 +80,7 @@ public class LabelControllerTest {
     }
 
     @Test
-    public void testIndex() throws Exception {
+    public void testGetAll() throws Exception {
         labelRepository.save(testLabel);
 
         MvcResult result = mockMvc.perform(get("/api/labels").with(jwt()))
@@ -92,7 +92,7 @@ public class LabelControllerTest {
     }
 
     @Test
-    public void testShow() throws Exception {
+    public void testGetById() throws Exception {
         labelRepository.save(testLabel);
 
         var request = get("/api/labels/{id}", testLabel.getId()).with(jwt());
