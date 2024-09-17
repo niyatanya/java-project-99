@@ -76,8 +76,6 @@ public class TaskControllerTest {
 
     private Label testLabel;
 
-    private final InstanceGenerator generator = new InstanceGenerator();
-
     @BeforeEach
     public void setUp() {
         taskRepository.deleteAll();
@@ -90,16 +88,16 @@ public class TaskControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        testUser = generator.getUser();
+        testUser = InstanceGenerator.getUser();
         userRepository.save(testUser);
 
-        testStatus = generator.getTaskStatus();
+        testStatus = InstanceGenerator.getTaskStatus();
         statusRepository.save(testStatus);
 
-        testLabel = generator.getLabel();
+        testLabel = InstanceGenerator.getLabel();
         labelRepository.save(testLabel);
 
-        testTask = generator.getTask();
+        testTask = InstanceGenerator.getTask();
         testTask.setAssignee(testUser);
         testTask.setTaskStatus(testStatus);
 
@@ -122,7 +120,7 @@ public class TaskControllerTest {
 
     @Test
     public void testGetAllWithFilter() throws Exception {
-        Task testTask2 = generator.getTask();
+        Task testTask2 = InstanceGenerator.getTask();
         testTask2.setTaskStatus(testStatus);
 
         taskRepository.save(testTask);

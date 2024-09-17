@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,9 +75,6 @@ public class UserController {
     }
 
     @PutMapping(path = "/{id}")
-    //value = "@userService.findById(#id).getEmail() == authentication.name"
-    //"@userRepository.findById(#id).getEmail() == authentication.principal.username"
-//    @PreAuthorize(value = "@userRepository.findById(#id).getEmail() == authentication.name")
     private UserDTO update(@Valid @RequestBody UserUpdateDTO dto,
                            @PathVariable long id) throws AccessDeniedException {
         User currentUser = userUtils.getCurrentUser();
@@ -90,7 +87,6 @@ public class UserController {
 
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-//    @PreAuthorize(value = "@userRepository.findById(#id).getEmail() == authentication.principal.username")
     private void delete(@PathVariable long id) throws AccessDeniedException {
         User currentUser = userUtils.getCurrentUser();
         if (currentUser.getId() != id) {

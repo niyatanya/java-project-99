@@ -59,8 +59,6 @@ public class TaskStatusesControllerTest {
 
     private TaskStatus testStatus;
 
-    private final InstanceGenerator generator = new InstanceGenerator();
-
     @BeforeEach
     public void setUp() {
         taskRepository.deleteAll();
@@ -71,7 +69,7 @@ public class TaskStatusesControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        testStatus = generator.getTaskStatus();
+        testStatus = InstanceGenerator.getTaskStatus();
     }
 
     @Test

@@ -10,16 +10,14 @@ import org.instancio.Select;
 
 public class InstanceGenerator {
 
-    private final Faker faker = new Faker();
-
-    public TaskStatus getTaskStatus() {
+    public static TaskStatus getTaskStatus() {
         return Instancio.of(TaskStatus.class)
                 .ignore(Select.field(TaskStatus::getId))
                 .ignore(Select.field(TaskStatus::getCreatedAt))
                 .create();
     }
 
-    public Task getTask() {
+    public static Task getTask() {
         return Instancio.of(Task.class)
                 .ignore(Select.field(Task::getId))
                 .ignore(Select.field(Task::getCreatedAt))
@@ -29,7 +27,7 @@ public class InstanceGenerator {
                 .create();
     }
 
-    public Label getLabel() {
+    public static Label getLabel() {
         return Instancio.of(Label.class)
                 .ignore(Select.field(Label::getId))
                 .ignore(Select.field(Label::getCreatedAt))
@@ -37,7 +35,8 @@ public class InstanceGenerator {
                 .create();
     }
 
-    public User getUser() {
+    public static User getUser() {
+        Faker faker = new Faker();
         return Instancio.of(User.class)
                 .ignore(Select.field(User::getId))
                 .ignore(Select.field(User::getCreatedAt))

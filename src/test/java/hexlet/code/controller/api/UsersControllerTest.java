@@ -66,13 +66,11 @@ public class UsersControllerTest {
 
     private User testUser;
 
-    private final InstanceGenerator generator = new InstanceGenerator();
-
     @BeforeEach
     public void setUp() {
         taskRepository.deleteAll();
         userRepository.deleteAll();
-        testUser = generator.getUser();
+        testUser = InstanceGenerator.getUser();
         token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
     }
 
@@ -209,7 +207,7 @@ public class UsersControllerTest {
     @Test
     public void testDeleteWithoutAuth() throws Exception {
         userRepository.save(testUser);
-        User testUser2 = generator.getUser();
+        User testUser2 = InstanceGenerator.getUser();
         userRepository.save(testUser2);
 
         MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser2.getId()).with(token);
@@ -223,7 +221,7 @@ public class UsersControllerTest {
     @Test
     public void testUpdateWithoutAuth() throws Exception {
         userRepository.save(testUser);
-        User testUser2 = generator.getUser();
+        User testUser2 = InstanceGenerator.getUser();
         userRepository.save(testUser2);
 
         UserDTO dto = mapper.map(testUser2);

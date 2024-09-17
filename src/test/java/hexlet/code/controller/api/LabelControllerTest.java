@@ -57,8 +57,6 @@ public class LabelControllerTest {
 
     private Label testLabel;
 
-    private final InstanceGenerator generator = new InstanceGenerator();
-
     @BeforeEach
     public void setUp() {
         taskRepository.deleteAll();
@@ -69,7 +67,7 @@ public class LabelControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        testLabel = generator.getLabel();
+        testLabel = InstanceGenerator.getLabel();
     }
 
     @Test
