@@ -10,11 +10,9 @@ import hexlet.code.repository.UserRepository;
 import hexlet.code.service.UserService;
 import hexlet.code.util.UserUtils;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,25 +27,22 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    final UserRepository userRepository;
 
-    @Autowired
-    private TaskRepository taskRepository;
+    final TaskRepository taskRepository;
 
-    @Autowired
-    private UserMapper mapper;
+    final UserMapper mapper;
 
-    @Autowired
-    private UserService userService;
+    final UserService userService;
 
-    @Autowired
-    private UserUtils userUtils;
+    final UserUtils userUtils;
 
     @GetMapping
     private ResponseEntity<List<UserDTO>> getAll() {

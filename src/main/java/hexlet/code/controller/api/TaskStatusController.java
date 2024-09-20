@@ -9,7 +9,6 @@ import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,19 +22,18 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/task_statuses")
 public class TaskStatusController {
 
-    @Autowired
-    private TaskStatusRepository statusRepository;
+    final TaskStatusRepository statusRepository;
 
-    @Autowired
-    private TaskRepository taskRepository;
+    final TaskRepository taskRepository;
 
-    @Autowired
-    private TaskStatusMapper mapper;
+    final TaskStatusMapper mapper;
 
     @GetMapping
     public ResponseEntity<List<TaskStatusDTO>> getAll() {

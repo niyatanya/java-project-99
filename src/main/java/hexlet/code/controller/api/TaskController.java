@@ -27,18 +27,18 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
-    @Autowired
-    private TaskRepository taskRepository;
 
-    @Autowired
-    private TaskMapper mapper;
+    final TaskRepository taskRepository;
 
-    @Autowired
-    private TaskSpecification specBuilder;
+    final TaskMapper mapper;
+
+    final TaskSpecification specBuilder;
 
     @GetMapping
     public ResponseEntity<List<TaskDTO>> getAll(TaskParamsDTO params,
