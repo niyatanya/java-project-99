@@ -40,7 +40,6 @@ public class LabelControllerTest {
 
     @Autowired
     private WebApplicationContext wac;
-
     @Autowired
     private MockMvc mockMvc;
 

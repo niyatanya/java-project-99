@@ -5,28 +5,33 @@ import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import hexlet.code.model.User;
 import hexlet.code.service.CustomUserDetailsService;
+import lombok.AllArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Component
+@AllArgsConstructor
 public class DataInitializer implements ApplicationRunner {
 
-    final TaskStatusRepository statusRepository;
+    @Autowired
+    private TaskStatusRepository statusRepository;
 
-    final LabelRepository labelRepository;
+    @Autowired
+    private LabelRepository labelRepository;
 
-    final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    final CustomUserDetailsService userService;
+    @Autowired
+    private final CustomUserDetailsService userService;
 
     @Override
     public void run(ApplicationArguments args) {

@@ -9,6 +9,7 @@ import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.LabelRepository;
 
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,18 +23,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/labels")
 public class LabelController {
 
-    final LabelRepository labelRepository;
+    @Autowired
+    private LabelRepository labelRepository;
 
-    final TaskRepository taskRepository;
+    @Autowired
+    private TaskRepository taskRepository;
 
-    final LabelMapper mapper;
+    @Autowired
+    private LabelMapper mapper;
 
     @GetMapping
     public ResponseEntity<List<LabelDTO>> getAll() {

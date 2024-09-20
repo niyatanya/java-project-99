@@ -6,13 +6,11 @@ import hexlet.code.repository.LabelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Component
 public class TaskSpecification {
-
-    final LabelRepository labelRepository;
+    @Autowired
+    private LabelRepository labelRepository;
 
     public Specification<Task> build(TaskParamsDTO params) {
         return withAssigneeId(params.getAssigneeId())

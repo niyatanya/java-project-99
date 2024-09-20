@@ -1,5 +1,6 @@
 package hexlet.code.controller.api;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,16 +10,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import hexlet.code.dto.AuthRequest;
 import hexlet.code.util.JWTUtils;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
 public class AuthenticationController {
+    @Autowired
+    private JWTUtils jwtUtils;
 
-    final JWTUtils jwtUtils;
-
-    final AuthenticationManager authenticationManager;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
     public String create(@RequestBody AuthRequest authRequest) {

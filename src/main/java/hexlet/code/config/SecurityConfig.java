@@ -1,5 +1,6 @@
 package hexlet.code.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,19 +18,19 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import hexlet.code.service.CustomUserDetailsService;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+    @Autowired
+    private JwtDecoder jwtDecoder;
 
-    final JwtDecoder jwtDecoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    final PasswordEncoder passwordEncoder;
-
-    final CustomUserDetailsService userService;
+    @Autowired
+    private CustomUserDetailsService userService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector)
