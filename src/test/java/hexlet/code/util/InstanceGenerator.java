@@ -31,7 +31,6 @@ public class InstanceGenerator {
         return Instancio.of(Label.class)
                 .ignore(Select.field(Label::getId))
                 .ignore(Select.field(Label::getCreatedAt))
-                .ignore(Select.field(Label::getTasks))
                 .create();
     }
 
