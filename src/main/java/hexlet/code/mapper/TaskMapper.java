@@ -15,7 +15,6 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.Mapping;
-import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
@@ -65,10 +64,6 @@ public abstract class TaskMapper {
             return new HashSet<>(labelRepository.findAllById(taskLabelIds));
         }
         return new HashSet<Label>();
-    }
-
-    protected Set<Label> labelsFromJsonNullableLabelIds(JsonNullable<Set<Long>> taskLabelIds) {
-        return new HashSet<>(labelRepository.findAllById(taskLabelIds.get()));
     }
 
     protected Set<Long> taskLabelIdsFromLabels(Set<Label> labels) {
