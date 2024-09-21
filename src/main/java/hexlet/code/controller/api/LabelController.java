@@ -4,10 +4,10 @@ import hexlet.code.dto.label.LabelCreateDTO;
 import hexlet.code.dto.label.LabelDTO;
 import hexlet.code.dto.label.LabelUpdateDTO;
 import hexlet.code.mapper.LabelMapper;
-import hexlet.code.model.Label;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.LabelRepository;
 
+import hexlet.code.service.LabelService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,43 +37,37 @@ public class LabelController {
     @Autowired
     private LabelMapper mapper;
 
+    @Autowired
+    private LabelService labelService;
+
     @GetMapping
     public ResponseEntity<List<LabelDTO>> getAll() {
-        List<Label> labels = labelRepository.findAll();
-        List<LabelDTO> result = labels.stream()
-                .map(mapper::map)
-                .toList();
+        List<LabelDTO> result = labelService.getAll();
         return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(labels.size()))
+                .header("X-Total-Count", String.valueOf(result.size()))
                 .body(result);
     }
 
     @GetMapping(path = "/{id}")
-    private LabelDTO getById(@PathVariable long id) {
-        Label label = labelRepository.findById(id).orElseThrow();
-        return mapper.map(label);
+    public LabelDTO getById(@PathVariable long id) {
+        return labelService.getById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private LabelDTO create(@Valid @RequestBody LabelCreateDTO data) {
-        Label label = mapper.map(data);
-        labelRepository.save(label);
-        return mapper.map(label);
+    public LabelDTO create(@Valid @RequestBody LabelCreateDTO data) {
+        return labelService.create(data);
     }
 
     @PutMapping(path = "/{id}")
     public LabelDTO update(@Valid @RequestBody LabelUpdateDTO data,
                              @PathVariable long id) {
-        Label label = labelRepository.findById(id).orElseThrow();
-        mapper.update(data, label);
-        labelRepository.save(label);
-        return mapper.map(label);
+        return labelService.update(data, id);
     }
 
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable long id) throws Exception {
-        labelRepository.deleteById(id);
+    public void delete(@PathVariable long id) {
+        labelService.deleteById(id);
     }
 }

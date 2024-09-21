@@ -1,5 +1,6 @@
 package hexlet.code.service;
 
+import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.dto.user.UserDTO;
 import hexlet.code.dto.user.UserUpdateDTO;
 import hexlet.code.mapper.UserMapper;
@@ -12,8 +13,8 @@ import org.springframework.stereotype.Service;
 
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 @Service
 public class UserService implements UserDetailsManager {
@@ -26,6 +27,35 @@ public class UserService implements UserDetailsManager {
 
     @Autowired
     private UserMapper mapper;
+
+    public List<UserDTO> getAll() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(mapper::map)
+                .toList();
+    }
+
+    public UserDTO getById(long id) {
+        User user = userRepository.findById(id).orElseThrow();
+        return mapper.map(user);
+    }
+
+    public UserDTO create(UserCreateDTO dto) {
+        User user = mapper.map(dto);
+        userRepository.save(user);
+        return mapper.map(user);
+    }
+
+    public UserDTO update(UserUpdateDTO dto, long id) {
+        User user = userRepository.findById(id).orElseThrow();
+        mapper.update(dto, user);
+        userRepository.save(user);
+        return mapper.map(user);
+    }
+
+    public void deleteById(long id) {
+        userRepository.deleteById(id);
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -41,14 +71,6 @@ public class UserService implements UserDetailsManager {
         var hashedPassword = passwordEncoder.encode(userData.getPassword());
         user.setPasswordDigest(hashedPassword);
         userRepository.save(user);
-    }
-
-    public UserDTO updateUser(@RequestBody UserUpdateDTO dto,
-                              @PathVariable long id) {
-        User user = userRepository.findById(id).orElseThrow();
-        mapper.update(dto, user);
-        userRepository.save(user);
-        return mapper.map(user);
     }
 
     @Override

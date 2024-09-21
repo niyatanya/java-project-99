@@ -4,10 +4,10 @@ import hexlet.code.dto.taskstatus.TaskStatusCreateDTO;
 import hexlet.code.dto.taskstatus.TaskStatusDTO;
 import hexlet.code.dto.taskstatus.TaskStatusUpdateDTO;
 import hexlet.code.mapper.TaskStatusMapper;
-import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 
+import hexlet.code.service.TaskStatusService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,43 +37,37 @@ public class TaskStatusController {
     @Autowired
     private TaskStatusMapper mapper;
 
+    @Autowired
+    private TaskStatusService taskStatusService;
+
     @GetMapping
     public ResponseEntity<List<TaskStatusDTO>> getAll() {
-        List<TaskStatus> statuses = statusRepository.findAll();
-        List<TaskStatusDTO> result = statuses.stream()
-                .map(mapper::map)
-                .toList();
+        List<TaskStatusDTO> result = taskStatusService.getAll();
         return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(statuses.size()))
+                .header("X-Total-Count", String.valueOf(result.size()))
                 .body(result);
     }
 
     @GetMapping(path = "/{id}")
-    private TaskStatusDTO getById(@PathVariable long id) {
-         TaskStatus status = statusRepository.findById(id).orElseThrow();
-        return mapper.map(status);
+    public TaskStatusDTO getById(@PathVariable long id) {
+        return taskStatusService.getById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private TaskStatusDTO create(@Valid @RequestBody TaskStatusCreateDTO data) {
-        TaskStatus status = mapper.map(data);
-        statusRepository.save(status);
-        return mapper.map(status);
+    public TaskStatusDTO create(@Valid @RequestBody TaskStatusCreateDTO data) {
+        return taskStatusService.create(data);
     }
 
     @PutMapping(path = "/{id}")
     public TaskStatusDTO update(@Valid @RequestBody TaskStatusUpdateDTO data,
                              @PathVariable long id) {
-        TaskStatus status = statusRepository.findById(id).orElseThrow();
-        mapper.update(data, status);
-        statusRepository.save(status);
-        return mapper.map(status);
+        return taskStatusService.update(data, id);
     }
 
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) {
-        statusRepository.deleteById(id);
+        taskStatusService.deleteById(id);
     }
 }

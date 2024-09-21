@@ -49,48 +49,42 @@ public class UserController {
     private UserUtils userUtils;
 
     @GetMapping
-    private ResponseEntity<List<UserDTO>> getAll() {
-        List<User> users = userRepository.findAll();
-        List<UserDTO> result = users.stream()
-                .map(mapper::map)
-                .toList();
+    public ResponseEntity<List<UserDTO>> getAll() {
+        List<UserDTO> result = userService.getAll();
         return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(users.size()))
+                .header("X-Total-Count", String.valueOf(result.size()))
                 .body(result);
     }
 
     @GetMapping(path = "/{id}")
-    private UserDTO getById(@PathVariable long id) {
-        User user = userRepository.findById(id).orElseThrow();
-        return mapper.map(user);
+    public UserDTO getById(@PathVariable long id) {
+        return userService.getById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private UserDTO create(@Valid @RequestBody UserCreateDTO dto) {
-        User user = mapper.map(dto);
-        userRepository.save(user);
-        return mapper.map(user);
+    public UserDTO create(@Valid @RequestBody UserCreateDTO dto) {
+        return userService.create(dto);
     }
 
     @PutMapping(path = "/{id}")
-    private UserDTO update(@Valid @RequestBody UserUpdateDTO dto,
+    public UserDTO update(@Valid @RequestBody UserUpdateDTO dto,
                            @PathVariable long id) throws AccessDeniedException {
         User currentUser = userUtils.getCurrentUser();
         if (currentUser.getId() != id) {
             throw new AccessDeniedException("Access denied.");
         }
 
-        return userService.updateUser(dto, id);
+        return userService.update(dto, id);
     }
 
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    private void delete(@PathVariable long id) throws AccessDeniedException {
+    public void delete(@PathVariable long id) throws AccessDeniedException {
         User currentUser = userUtils.getCurrentUser();
         if (currentUser.getId() != id) {
             throw new AccessDeniedException("Access denied.");
         }
-        userRepository.deleteById(id);
+        userService.deleteById(id);
     }
 }
