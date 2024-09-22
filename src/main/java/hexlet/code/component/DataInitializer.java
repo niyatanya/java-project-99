@@ -6,7 +6,6 @@ import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -21,16 +20,9 @@ import java.util.List;
 @AllArgsConstructor
 public class DataInitializer implements ApplicationRunner {
 
-    @Autowired
-    private TaskStatusRepository statusRepository;
-
-    @Autowired
-    private LabelRepository labelRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
+    private final TaskStatusRepository statusRepository;
+    private final LabelRepository labelRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
 
     @Override
