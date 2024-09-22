@@ -3,7 +3,6 @@ package hexlet.code.controller.api;
 import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.dto.user.UserDTO;
 import hexlet.code.dto.user.UserUpdateDTO;
-import hexlet.code.model.User;
 import hexlet.code.service.UserService;
 import hexlet.code.util.UserUtils;
 import jakarta.validation.Valid;
@@ -11,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,23 +54,16 @@ public class UserController {
     }
 
     @PutMapping(path = "/{id}")
+    @PreAuthorize(value = "@userUtils.getCurrentUser().getId() == #id")
     public UserDTO update(@Valid @RequestBody UserUpdateDTO dto,
                            @PathVariable long id) throws AccessDeniedException {
-        User currentUser = userUtils.getCurrentUser();
-        if (currentUser.getId() != id) {
-            throw new AccessDeniedException("Access denied.");
-        }
-
         return userService.update(dto, id);
     }
 
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(value = "@userUtils.getCurrentUser().getId() == #id")
     public void delete(@PathVariable long id) throws AccessDeniedException {
-        User currentUser = userUtils.getCurrentUser();
-        if (currentUser.getId() != id) {
-            throw new AccessDeniedException("Access denied.");
-        }
         userService.deleteById(id);
     }
 }
