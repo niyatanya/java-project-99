@@ -6,19 +6,17 @@ import hexlet.code.dto.taskstatus.TaskStatusUpdateDTO;
 import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskStatusRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class TaskStatusService {
 
-    @Autowired
-    private TaskStatusRepository statusRepository;
-
-    @Autowired
-    private TaskStatusMapper mapper;
+    private final TaskStatusRepository statusRepository;
+    private final TaskStatusMapper mapper;
 
     public List<TaskStatusDTO> getAll() {
         List<TaskStatus> statuses = statusRepository.findAll();

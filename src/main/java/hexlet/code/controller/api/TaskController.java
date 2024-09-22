@@ -5,12 +5,9 @@ import hexlet.code.dto.task.TaskDTO;
 import hexlet.code.dto.task.TaskParamsDTO;
 import hexlet.code.dto.task.TaskUpdateDTO;
 
-import hexlet.code.mapper.TaskMapper;
-import hexlet.code.repository.TaskRepository;
 import hexlet.code.service.TaskService;
 import jakarta.validation.Valid;
-import hexlet.code.specification.TaskSpecification;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,18 +25,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
+@AllArgsConstructor
 public class TaskController {
-    @Autowired
-    private TaskRepository taskRepository;
 
-    @Autowired
-    private TaskMapper mapper;
-
-    @Autowired
-    private TaskService taskService;
-
-    @Autowired
-    private TaskSpecification specBuilder;
+    private final TaskService taskService;
 
     @GetMapping
     public ResponseEntity<List<TaskDTO>> getAll(TaskParamsDTO params,

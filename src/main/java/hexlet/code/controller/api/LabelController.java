@@ -3,13 +3,10 @@ package hexlet.code.controller.api;
 import hexlet.code.dto.label.LabelCreateDTO;
 import hexlet.code.dto.label.LabelDTO;
 import hexlet.code.dto.label.LabelUpdateDTO;
-import hexlet.code.mapper.LabelMapper;
-import hexlet.code.repository.TaskRepository;
-import hexlet.code.repository.LabelRepository;
 
 import hexlet.code.service.LabelService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,19 +23,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/labels")
+@AllArgsConstructor
 public class LabelController {
 
-    @Autowired
-    private LabelRepository labelRepository;
-
-    @Autowired
-    private TaskRepository taskRepository;
-
-    @Autowired
-    private LabelMapper mapper;
-
-    @Autowired
-    private LabelService labelService;
+    private final LabelService labelService;
 
     @GetMapping
     public ResponseEntity<List<LabelDTO>> getAll() {
