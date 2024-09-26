@@ -31,9 +31,8 @@ public class TaskController {
     private final TaskService taskService;
 
     @GetMapping
-    public ResponseEntity<List<TaskDTO>> getAll(TaskParamsDTO params,
-                                               @RequestParam(defaultValue = "1") int page) {
-        List<TaskDTO> result = taskService.getAll(params, page);
+    public ResponseEntity<List<TaskDTO>> getAll(TaskParamsDTO params) {
+        List<TaskDTO> result = taskService.getAll(params);
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(result.size()))
                 .body(result);

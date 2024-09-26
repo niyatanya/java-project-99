@@ -23,9 +23,9 @@ public class TaskService {
     private final TaskMapper mapper;
     private final TaskSpecification specBuilder;
 
-    public List<TaskDTO> getAll(TaskParamsDTO params, int page) {
+    public List<TaskDTO> getAll(TaskParamsDTO params) {
         Specification<Task> spec = specBuilder.build(params);
-        List<Task> tasks = taskRepository.findAll(spec, PageRequest.of(page - 1, 10)).toList();
+        List<Task> tasks = taskRepository.findAll(spec);
         return tasks.stream()
                 .map(mapper::map)
                 .toList();
