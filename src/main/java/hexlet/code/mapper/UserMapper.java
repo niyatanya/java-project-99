@@ -15,6 +15,8 @@ import org.mapstruct.BeforeMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
+
 @Mapper(
         uses = { JsonNullableMapper.class },
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
@@ -37,5 +39,11 @@ public abstract class UserMapper {
     public void encryptPassword(UserCreateDTO data) {
         var password = data.getPassword();
         data.setPassword(encoder.encode(password));
+    }
+
+    public List<UserDTO> mapList(List<User> users) {
+        return users.stream()
+                .map(this::map)
+                .toList();
     }
 }

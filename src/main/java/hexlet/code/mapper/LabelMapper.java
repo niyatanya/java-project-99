@@ -11,6 +11,8 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.List;
+
 @Mapper(
         uses = { JsonNullableMapper.class },
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
@@ -24,4 +26,10 @@ public abstract class LabelMapper {
     public abstract LabelDTO map(Label model);
 
     public abstract void update(LabelUpdateDTO dto, @MappingTarget Label model);
+
+    public List<LabelDTO> mapList(List<Label> labels) {
+        return labels.stream()
+                .map(this::map)
+                .toList();
+    }
 }

@@ -9,7 +9,6 @@ import hexlet.code.model.Task;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.specification.TaskSpecification;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +25,7 @@ public class TaskService {
     public List<TaskDTO> getAll(TaskParamsDTO params) {
         Specification<Task> spec = specBuilder.build(params);
         List<Task> tasks = taskRepository.findAll(spec);
-        return tasks.stream()
-                .map(mapper::map)
-                .toList();
+        return mapper.mapList(tasks);
     }
 
     public TaskDTO getById(long id) {
@@ -52,6 +49,4 @@ public class TaskService {
     public void deleteById(long id) {
         taskRepository.deleteById(id);
     }
-
-
 }

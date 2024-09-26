@@ -20,9 +20,7 @@ public class LabelService {
 
     public List<LabelDTO> getAll() {
         List<Label> labels = labelRepository.findAll();
-        return labels.stream()
-                .map(mapper::map)
-                .toList();
+        return mapper.mapList(labels);
     }
 
     public LabelDTO getById(long id) {

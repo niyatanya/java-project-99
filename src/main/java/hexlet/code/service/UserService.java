@@ -5,6 +5,7 @@ import hexlet.code.dto.user.UserDTO;
 import hexlet.code.dto.user.UserUpdateDTO;
 import hexlet.code.mapper.UserMapper;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -26,9 +27,7 @@ public class UserService implements UserDetailsManager {
 
     public List<UserDTO> getAll() {
         List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(mapper::map)
-                .toList();
+        return mapper.mapList(users);
     }
 
     public UserDTO getById(long id) {
@@ -72,24 +71,24 @@ public class UserService implements UserDetailsManager {
     @Override
     public void updateUser(UserDetails user) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateUser'");
+        throw new NotImplementedException("Unimplemented method 'updateUser'");
     }
 
     @Override
     public void deleteUser(String username) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+        throw new NotImplementedException("Unimplemented method 'deleteUser'");
     }
 
     @Override
     public void changePassword(String oldPassword, String newPassword) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'changePassword'");
+        throw new NotImplementedException("Unimplemented method 'changePassword'");
     }
 
     @Override
     public boolean userExists(String username) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'userExists'");
+        throw new NotImplementedException("Unimplemented method 'userExists'");
     }
 }

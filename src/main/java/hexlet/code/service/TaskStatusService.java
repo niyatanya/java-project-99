@@ -20,9 +20,7 @@ public class TaskStatusService {
 
     public List<TaskStatusDTO> getAll() {
         List<TaskStatus> statuses = statusRepository.findAll();
-        return statuses.stream()
-                .map(mapper::map)
-                .toList();
+        return mapper.mapList(statuses);
     }
 
     public TaskStatusDTO getById(long id) {

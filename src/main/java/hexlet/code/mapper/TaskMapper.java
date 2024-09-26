@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
 
 @Mapper(
         uses = { JsonNullableMapper.class, ReferenceMapper.class },
@@ -71,5 +72,11 @@ public abstract class TaskMapper {
                 .map(Label::getId)
                 .toList()
         );
+    }
+
+    public List<TaskDTO> mapList(List<Task> tasks) {
+        return tasks.stream()
+                .map(this::map)
+                .toList();
     }
 }
